@@ -2,8 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QtCore>
 #include <QDebug>
 #include <QString>
+// for multi thread
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,8 +20,14 @@ public:
 	MainWindow(QWidget *parent = nullptr);
 	~MainWindow();
 
+private slots:
+	void main();
+
 private:
 	Ui::MainWindow *ui;
+
+	QTimer *timer;
+	QThread *thread;
 
 protected:
 	void closeEvent(QCloseEvent *event);
