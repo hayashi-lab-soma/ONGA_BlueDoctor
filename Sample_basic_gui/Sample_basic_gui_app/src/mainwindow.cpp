@@ -13,3 +13,8 @@ MainWindow::~MainWindow()
 	delete ui;
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+	qInfo() << "Bye bye";
+}
+

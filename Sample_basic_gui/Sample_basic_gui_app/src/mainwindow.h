@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDebug>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,5 +19,8 @@ public:
 
 private:
 	Ui::MainWindow *ui;
+
+protected:
+	void closeEvent(QCloseEvent *event);
 };
 #endif // MAINWINDOW_H
