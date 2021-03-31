@@ -29,6 +29,7 @@ private:
 
 	QTimer *timer;
 	QThread *thread;
+	bool isThread;
 
 protected:
 	void closeEvent(QCloseEvent *event);

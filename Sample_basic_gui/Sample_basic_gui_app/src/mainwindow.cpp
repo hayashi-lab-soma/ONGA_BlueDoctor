@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
 	timer->moveToThread(thread);
 	connect(timer, SIGNAL(timeout()), this, SLOT(main()),Qt::DirectConnection);
 
+	isThread = true;
 	thread->start();
 	QMetaObject::invokeMethod(timer,"start");
 }
@@ -26,11 +27,17 @@ MainWindow::~MainWindow()
 void MainWindow::main()
 {
 	qInfo() << "timer call back";
+
+	if(!isThread){
+		timer->stop();
+		thread->exit(0);
+	}
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-	timer->stop();
+	isThread = false;
+	thread->wait(1000);
 	qInfo() << "Bye bye";
 }
 
