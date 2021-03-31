@@ -26,11 +26,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
+include_directories(include)
+
 add_executable(Sample_basic_gui_app
 	src/main.cpp
 	src/mainwindow.cpp
 	include/mainwindow.h
-	ui/mainwindow.ui
+	src/mainwindow.ui
 )
 
 target_link_libraries(Sample_basic_gui_app PRIVATE Qt5::Widgets)
