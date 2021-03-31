@@ -26,7 +26,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::main()
 {
-	qInfo() << "timer call back";
+	qInfo() << "timer call back:" << QThread::currentThreadId();
 
 	if(!isThread){
 		timer->stop();
@@ -36,6 +36,7 @@ void MainWindow::main()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+	qInfo() << "GUI thread:" << QThread::currentThreadId();
 	isThread = false;
 	thread->wait(1000);
 	qInfo() << "Bye bye";
