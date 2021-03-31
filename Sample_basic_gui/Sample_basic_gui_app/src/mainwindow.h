@@ -7,6 +7,7 @@
 #include <QString>
 // for multi thread
 #include <QTimer>
+#include <QThread>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

@@ -7,10 +7,15 @@ MainWindow::MainWindow(QWidget *parent)
 {
 	ui->setupUi(this);
 
-	timer = new QTimer(this);
+	timer = new QTimer();
 	timer->setInterval(33);
-	connect(timer, SIGNAL(timeout()), this, SLOT(main()));
-	timer->start();
+	thread = new QThread();
+
+	timer->moveToThread(thread);
+	connect(timer, SIGNAL(timeout()), this, SLOT(main()),Qt::DirectConnection);
+
+	thread->start();
+	QMetaObject::invokeMethod(timer,"start");
 }
 
 MainWindow::~MainWindow()
