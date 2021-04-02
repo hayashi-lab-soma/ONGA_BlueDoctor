@@ -23,6 +23,10 @@ public:
 	MainWindow(QWidget *parent = nullptr);
 	~MainWindow();
 
+private:
+	void setup();
+	void start();
+
 private slots:
 	void main();
 
