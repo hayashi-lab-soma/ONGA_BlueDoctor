@@ -8,6 +8,11 @@
 #define TRACE(msg)
 #endif
 
+/**
+ * @brief MainWindow::MainWindow
+ * @param parent
+ * Constructor
+ */
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, ui(new Ui::MainWindow)
@@ -17,11 +22,19 @@ MainWindow::MainWindow(QWidget *parent)
 	start(); //2)
 }
 
+/**
+ * @brief MainWindow::~MainWindow
+ * Destructor
+ */
 MainWindow::~MainWindow()
 {
 	delete ui;
 }
 
+/**
+ * @brief MainWindow::setup
+ * Initialize and set parameters, ...
+ */
 void MainWindow::setup()
 {
 	settings = new QSettings("./config.ini",QSettings::IniFormat,this);
@@ -40,6 +53,10 @@ void MainWindow::setup()
 
 }
 
+/**
+ * @brief MainWindow::start
+ * Start main thread
+ */
 void MainWindow::start()
 {
 	timer->moveToThread(thread);
@@ -50,6 +67,11 @@ void MainWindow::start()
 	QMetaObject::invokeMethod(timer,"start");
 }
 
+/**
+ * @brief MainWindow::main
+ * Main process function as timer call back
+ * Performed at each INTERVAL
+ */
 void MainWindow::main()
 {
 	TRACE("------------------------------");
@@ -57,12 +79,20 @@ void MainWindow::main()
 	TRACE(QString("Timer call back: 0x" + strThID));
 	TRACE("------------------------------");
 
+
+	// Processes
+
+
 	if(!isThread){
 		timer->stop();
 		thread->exit(0);
 	}
 }
 
+/**
+ * @brief MainWindow::closeEvent
+ * @param event
+ */
 void MainWindow::closeEvent(QCloseEvent *event)
 {
 	QString strThID = QString("%1").arg((int)QThread::currentThreadId(),0,16);
