@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-#define IS_TRACE 1
+#define IS_TRACE 0
 #if IS_TRACE==1
 #define TRACE(msg) qDebug()<<msg
 #elif IS_TRACE==0
