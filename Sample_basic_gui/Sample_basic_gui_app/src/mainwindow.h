@@ -5,6 +5,8 @@
 #include <QtCore>
 #include <QDebug>
 #include <QString>
+// for configuration
+#include <QSettings>
 // for multi thread
 #include <QTimer>
 #include <QThread>
@@ -26,6 +28,8 @@ private slots:
 
 private:
 	Ui::MainWindow *ui;
+
+	QSettings *settings;
 
 	QTimer *timer;
 	QThread *thread;

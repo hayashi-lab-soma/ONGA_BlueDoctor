@@ -26,11 +26,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
+QT5_ADD_RESOURCES(RESOURCES resources.qrc)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/config.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+
 add_executable(Sample_basic_gui_app
 	src/main.cpp
 	src/mainwindow.cpp
 	src/mainwindow.h
 	src/mainwindow.ui
+	${RESOURCES}
 )
 
 target_link_libraries(Sample_basic_gui_app PRIVATE Qt5::Widgets)

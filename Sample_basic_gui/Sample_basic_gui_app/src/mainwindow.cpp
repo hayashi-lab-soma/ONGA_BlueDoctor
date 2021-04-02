@@ -1,14 +1,30 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+#define IS_TRACE 1
+#if IS_TRACE==1
+	#define TRACE(msg) qDebug()<<msg
+#elif IS_TRACE==0
+	#define TRACE(msg)
+#endif
+
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
 
+	settings = new QSettings("./config.ini",QSettings::IniFormat,this);
+	TRACE("------------------------------");
+	TRACE("Configurations");
+	TRACE(settings->allKeys());
+	settings->beginGroup("MAIN");
+	int interval = settings->value("INTERVAL").toInt();
+	settings->endGroup();
+	TRACE("------------------------------");
+
 	timer = new QTimer();
-	timer->setInterval(33);
+	timer->setInterval(interval);
 	thread = new QThread();
 
 	timer->moveToThread(thread);
@@ -26,7 +42,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::main()
 {
-	qInfo() << "timer call back:" << QThread::currentThreadId();
+	TRACE("------------------------------");
+	QString strThID = QString("%1").arg((int)QThread::currentThreadId(),0,16);
+	TRACE(QString("Timer call back: 0x" + strThID));
+	TRACE("------------------------------");
 
 	if(!isThread){
 		timer->stop();
@@ -36,7 +55,9 @@ void MainWindow::main()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-	qInfo() << "GUI thread:" << QThread::currentThreadId();
+	QString strThID = QString("%1").arg((int)QThread::currentThreadId(),0,16);
+	TRACE(QString("GUI thread: 0x" + strThID));
+
 	isThread = false;
 	thread->wait(1000);
 	qInfo() << "Bye bye";
