@@ -1,8 +1,8 @@
-# Install script for directory: D:/ONGA_Projects/ONGA_BlueDoctor/Main_app
+# Install script for directory: C:/Users/hayashi/Documents/devel/ONGA_BlueDoctor/Main_app
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files/Main_App")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/ONGProject")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "D:/ONGA_Projects/ONGA_BlueDoctor/Main_app/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/hayashi/Documents/devel/ONGA_BlueDoctor/Main_app/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

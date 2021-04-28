@@ -1,0 +1,68 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Main_app",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Main_app::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Main_app-Release-4469d6b96fdb2e7e2ef3.json",
+					"name" : "Main_app",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Main_app_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Main_app_autogen-Release-305af85fe3bfebd8c4b6.json",
+					"name" : "Main_app_autogen",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/hayashi/Documents/devel/ONGA_BlueDoctor/Main_app/build",
+		"source" : "C:/Users/hayashi/Documents/devel/ONGA_BlueDoctor/Main_app"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 2
+	}
+}
