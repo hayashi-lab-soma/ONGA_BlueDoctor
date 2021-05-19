@@ -41,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    this->thMain->exit();
+    this->thMain->wait();
     delete ui;
 }
 
