@@ -6,6 +6,8 @@
 #include <QString>
 
 #include <librealsense2/rs.hpp>
+#include <librealsense2/rs.h>
+#include <librealsense2/rsutil.h>
 #include <opencv2/opencv.hpp>
 
 /*!
@@ -45,10 +47,14 @@ public:
     int init();
     int getFrames(RS2::Frames_t &frames);
 
+    int deproject(int u, int v, float point[]);
+
 private:
     rs2::pipeline *rsPipe;
     rs2::config *rsCfg;
     rs2::align *align_to_depth, *align_to_color;
+    rs2::depth_frame *depth_frame;
+    rs2_intrinsics intr_depth;
 };
 
 #endif // D400S_H

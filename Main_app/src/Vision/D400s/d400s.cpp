@@ -73,3 +73,23 @@ int D400s::getFrames(RS2::Frames_t &frames)
     return 0;
 }
 
+/*!
+ * \brief D400s::deproject
+ * \param u
+ * \param v
+ * \param point
+ * \return
+ */
+int D400s::deproject(int u, int v, float point[])
+{
+    try{
+        float pixel[2] = {(float)u, (float)v};
+        float d = depth_frame->get_distance(u, v);
+        rs2_deproject_pixel_to_point(point,&intr_depth,pixel,d);
+    }
+    catch(rs2::error &e){
+        qWarning() << e.what();
+    }
+    return 0;
+}
+
