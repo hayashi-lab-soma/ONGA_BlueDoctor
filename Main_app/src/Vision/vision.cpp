@@ -116,11 +116,11 @@ void Vision::main(Data *data)
     std::vector<std::vector<cv::Point> > contours;
     std::vector<cv::Vec4i> hierarchy;
     cv::Mat hsv, mask;
-    cv::Scalar lower = cv::Scalar(49, 100, 33);
-    cv::Scalar upper = cv::Scalar(147, 255, 255);
+    cv::Scalar lower_b = cv::Scalar(49, 100, 33);
+    cv::Scalar upper_b = cv::Scalar(147, 255, 255);
 
     cv::cvtColor(rs2_frames.imgAlignedRGB, hsv, CV_RGB2HSV, 3);
-    cv::inRange(hsv, lower, upper, mask);
+    cv::inRange(hsv, lower_b, upper_b, mask);
     cv::imshow("hsv", hsv);
     cv::imshow("mask", mask);
 
