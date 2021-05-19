@@ -70,6 +70,8 @@ signals:
 private:
     Ui::MainWindow *ui;
     QThread *thMain;
+    QThread *thBD;
+    QThread *thImgProcess;
     QTimer *timer;
 
     Config *cfg;

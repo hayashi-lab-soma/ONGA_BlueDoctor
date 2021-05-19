@@ -41,8 +41,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    this->thMain->exit();
-    this->thMain->wait();
+    thMain->exit();
+    thBD->exit();
+    thImgProcess->exit();
+
+    thMain->wait();
+    thBD->wait();
+    thImgProcess->wait();
     delete ui;
 }
 
@@ -224,15 +229,23 @@ QMdiSubWindow* MainWindow::addMdiSubWindow(QWidget *widget)
 void MainWindow::start()
 {
     thMain = new QThread();
-    thMain->start();
-
+    thBD = new QThread();
+    thImgProcess = new QThread();
     timer = new QTimer();
-    timer->setInterval(cfg->getInteger("MAIN", "INTERVAL"));
-    timer->moveToThread(thMain);
 
-    connect(timer, SIGNAL(timeout()),
-            this, SLOT(main()),
+//  Move tasks to each threads
+    timer->moveToThread(thMain);
+    bdrcvr->moveToThread(thBD);
+    vision->moveToThread(thImgProcess);
+
+
+    timer->setInterval(cfg->getInteger("MAIN", "INTERVAL"));
+    connect(timer, SIGNAL(timeout()),this, SLOT(main()),
             Qt::DirectConnection);
+
+    thMain->start();
+    thBD->start();
+    thImgProcess->start();
 
     QMetaObject::invokeMethod(timer, "start");
     qInfo() << "--- Start Main Process ---";
