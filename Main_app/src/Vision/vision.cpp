@@ -116,11 +116,11 @@ void Vision::main(Data *data)
     std::vector<std::vector<cv::Point> > contours;
     std::vector<cv::Vec4i> hierarchy;
     cv::Mat hsv, mask;
-    cv::Scalar lower = cv::Scalar(49, 100, 33);
-    cv::Scalar upper = cv::Scalar(147, 255, 255);
+    cv::Scalar lower_b = cv::Scalar(49, 100, 33);
+    cv::Scalar upper_b = cv::Scalar(147, 255, 255);
 
     cv::cvtColor(rs2_frames.imgAlignedRGB, hsv, CV_RGB2HSV, 3);
-    cv::inRange(hsv, lower, upper, mask);
+    cv::inRange(hsv, lower_b, upper_b, mask);
     cv::imshow("hsv", hsv);
     cv::imshow("mask", mask);
 
@@ -129,6 +129,9 @@ void Vision::main(Data *data)
     int largest_area = 0;
     int largest_contours_index = 0;
     cv::Rect bounding_rect;
+    cv::Moments m;
+    cv::Mat centroid;
+
     for(size_t i=0; i<contours.size(); i++){
         double area = cv::contourArea(contours[i]);
         if (area > largest_area) {
@@ -137,12 +140,22 @@ void Vision::main(Data *data)
             bounding_rect = cv::boundingRect(contours[i]);
         }
     }
+
+    if(largest_contours_index!=-1){
+        m = cv::moments(contours[largest_contours_index]);
+    }
+
+    cv::Point2f mc = cv::Point2f(m.m10 / m.m00, m.m01 / m.m00);
+    std::cout <<"x="<< mc.x <<"y="<< mc.y << std::endl;
+
     cv::drawContours(rs2_frames.imgAlignedRGB, contours, largest_contours_index, cv::Scalar( 0, 255, 0 ),2);
+    centroid = rs2_frames.imgAlignedRGB.clone();
+    cv::circle(centroid, mc, 4, cv::Scalar(255,0,0), 2, 4);
     cv::imshow("result", rs2_frames.imgAlignedRGB);
 
     //copy RGB image -> imgResult
-    *imgResult = rs2_frames.imgAlignedRGB.clone();
-
+//    *imgResult = rs2_frames.imgAlignedRGB.clone();
+    *imgResult = centroid.clone();
 	/*
 	//------------------------------------------------------------------------------------------------------------------------
 	//Detection of Blue Doctor's position and rectangle
