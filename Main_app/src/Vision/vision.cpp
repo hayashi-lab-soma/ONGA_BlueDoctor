@@ -15,25 +15,22 @@ Vision::Vision(QObject *parent) : QObject(parent)
 	isTest = cfg->getBool("OPTION", "TEST");
 
 #if SELECT_DEVICE == 0
-	r200 = new R200();
+    r200 = new R200();
 #elif SELECT_DEVICE == 1
-	d455 = new D400s();
+    d455 = new D400s();
 #endif
 
-	max_area_cmp.area = -INFINITY;
-	max_area_cmp.centroid = QPoint(0,0);
-	max_area_cmp.size = QSize(0,0);
-	max_area_cmp.tl = QPoint(0,0);
+    max_area_cmp.area = -INFINITY;
+    max_area_cmp.centroid = QPoint(0,0);
+    max_area_cmp.size = QSize(0,0);
+    max_area_cmp.tl = QPoint(0,0);
 
-	cmpBD.area = 0.0;
-	cmpBD.centroid = QPoint(0, 0);
-	cmpBD.size = QSize(0, 0);
-	cmpBD.tl = QPoint(0, 0);
+    cmpBD.area = 0.0;
+    cmpBD.centroid = QPoint(0, 0);
+    cmpBD.size = QSize(0, 0);
+    cmpBD.tl = QPoint(0, 0);
 
-	//
-	tracker = cv::TrackerKCF::create();
-	//tracker = cv::TrackerMOSSE::create();
-	isTracking = false;
+    isTracking = false;
 }
 
 int Vision::initialize()
@@ -54,9 +51,9 @@ int Vision::initialize()
 	r200->startDevice();
 
 #elif SELECT_DEVICE == 1
-	if(d455->init() == -1) return -1;
-	imgResult = new cv::Mat();
-	imgBinBD = new cv::Mat();
+    if(d455->init() == -1) return -1;
+    imgResult = new cv::Mat();
+    imgBinBD = new cv::Mat();
 #endif
 
 	QThread::msleep(200);
@@ -111,32 +108,40 @@ void Vision::main(Data *data)
 #elif SELECT_DEVICE == 1
 void Vision::main(Data *data)
 {
-	TRACE("do main");
+    TRACE("do main");
 
-	//get current frame
-	d455->getFrames(rs2_frames);
+    //get current frame
+    d455->getFrames(rs2_frames);
 
-	if(data->isInitTracker){
-		cv::Rect roi = cv::selectROI(rs2_frames.imgAlignedRGB);
-		tracker->init(rs2_frames.imgAlignedRGB, roi);
-		tracker->clear();
-		data->isInitTracker = false;
-		isTracking = true;
-	}
+    std::vector<std::vector<cv::Point> > contours;
+    std::vector<cv::Vec4i> hierarchy;
+    cv::Mat hsv, mask;
+    cv::Scalar lower = cv::Scalar(49, 100, 33);
+    cv::Scalar upper = cv::Scalar(147, 255, 255);
 
-	//copy RGB image -> imgResult
-	*imgResult = rs2_frames.imgAlignedRGB.clone();
+    cv::cvtColor(rs2_frames.imgAlignedRGB, hsv, CV_RGB2HSV, 3);
+    cv::inRange(hsv, lower, upper, mask);
+    cv::imshow("hsv", hsv);
+    cv::imshow("mask", mask);
 
-	if(isTracking){
-		cv::Rect2d roi_bd;
-		tracker->update(rs2_frames.imgAlignedRGB, roi_bd);
-		max_area_cmp.centroid.setX(roi_bd.x+roi_bd.width/2.0);
-		max_area_cmp.centroid.setX(roi_bd.y+roi_bd.height/2.0);
-		max_area_cmp.tl.setX(roi_bd.tl().x);
-		max_area_cmp.tl.setY(roi_bd.tl().y);
-		max_area_cmp.size.setWidth(roi_bd.width);
-		max_area_cmp.size.setHeight(roi_bd.height);
-	}
+    cv::findContours(mask, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+    int largest_area = 0;
+    int largest_contours_index = 0;
+    cv::Rect bounding_rect;
+    for(size_t i=0; i<contours.size(); i++){
+        double area = cv::contourArea(contours[i]);
+        if (area > largest_area) {
+            largest_area = area;
+            largest_contours_index = i;
+            bounding_rect = cv::boundingRect(contours[i]);
+        }
+    }
+    cv::drawContours(rs2_frames.imgAlignedRGB, contours, largest_contours_index, cv::Scalar( 0, 255, 0 ),2);
+    cv::imshow("result", rs2_frames.imgAlignedRGB);
+
+    //copy RGB image -> imgResult
+    *imgResult = rs2_frames.imgAlignedRGB.clone();
 
 	/*
 	//------------------------------------------------------------------------------------------------------------------------
