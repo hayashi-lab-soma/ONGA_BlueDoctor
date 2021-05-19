@@ -6,17 +6,188 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>335</width>
+    <height>290</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar"/>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QMdiArea" name="mdi"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <property name="iconSize">
+    <size>
+     <width>50</width>
+     <height>50</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actShowGreenTarget"/>
+   <addaction name="actShowGrids"/>
+   <addaction name="actSpoit"/>
+   <addaction name="actInitTracker"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="font">
+    <font>
+     <family>Consolas</family>
+     <pointsize>12</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>335</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Consolas</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <widget class="QMenu" name="menutest">
+    <property name="title">
+     <string>Option</string>
+    </property>
+    <addaction name="actGreenHSV"/>
+    <addaction name="actCamParam"/>
+    <addaction name="actAlarm_ON"/>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actOpenDepthCSV"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menutest"/>
+  </widget>
+  <action name="actShowGreenTarget">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../resource/green_target.png</normaloff>../resource/green_target.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Green Target</string>
+   </property>
+  </action>
+  <action name="actShowGrids">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../resource/grids.png</normaloff>../resource/grids.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Grids</string>
+   </property>
+  </action>
+  <action name="actGreenHSV">
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Green HSV</string>
+   </property>
+  </action>
+  <action name="actCamParam">
+   <property name="text">
+    <string>Camera Parameter</string>
+   </property>
+  </action>
+  <action name="actOpenDepthCSV">
+   <property name="text">
+    <string>Open Depth CSV</string>
+   </property>
+  </action>
+  <action name="actSpoit">
+   <property name="icon">
+    <iconset>
+     <normaloff>../resource/spoit.png</normaloff>../resource/spoit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Spoit</string>
+   </property>
+  </action>
+  <action name="actionON">
+   <property name="text">
+    <string>ON</string>
+   </property>
+  </action>
+  <action name="actionOFF">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>OFF</string>
+   </property>
+  </action>
+  <action name="actON">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>ON</string>
+   </property>
+  </action>
+  <action name="actOFF">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>OFF</string>
+   </property>
+  </action>
+  <action name="actAlarm_ON">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Alarm ON</string>
+   </property>
+  </action>
+  <action name="actInitTracker">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../resource/tracker.png</normaloff>../resource/tracker.png</iconset>
+   </property>
+   <property name="text">
+    <string>InitTraker</string>
+   </property>
+  </action>
  </widget>
+ <layoutdefault spacing="6" margin="11"/>
  <resources/>
  <connections/>
 </ui>
