@@ -52,8 +52,11 @@ public:
 private:
     rs2::pipeline *rsPipe;
     rs2::config *rsCfg;
-    rs2::align *align_to_depth, *align_to_color;
+    rs2::frameset *_rs_frames;
+    rs2::frameset *rs_frames;
+    rs2::video_frame *video_frame;
     rs2::depth_frame *depth_frame;
+    rs2::align *align_to_depth, *align_to_color;
     rs2_intrinsics intr_depth;
 };
 

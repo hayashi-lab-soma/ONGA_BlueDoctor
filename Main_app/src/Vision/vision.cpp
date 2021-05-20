@@ -143,24 +143,22 @@ void Vision::main(Data *data)
 
     if(largest_contours_index!=-1){
         m = cv::moments(contours[largest_contours_index]);
+        cv::Point2f mc = cv::Point2f(m.m10 / m.m00, m.m01 / m.m00);
+        float point[3] = {0.0};
+        d455->deproject(mc.x,mc.y,point);
+        std::cout <<"x="<< mc.x <<" y="<< mc.y <<" z="<< point[2] << std::endl;
+        cv::drawContours(rs2_frames.imgAlignedRGB, contours, largest_contours_index, cv::Scalar( 0, 255, 0 ),2);
+        centroid = rs2_frames.imgAlignedRGB.clone();
+        cv::circle(centroid, mc, 4, cv::Scalar(255,0,0), 2, 4);
+        cv::imshow("result", rs2_frames.imgAlignedRGB);
+
+        //copy RGB image -> imgResult
+    //    *imgResult = rs2_frames.imgAlignedRGB.clone();
+    }else{
+        centroid = rs2_frames.imgAlignedRGB;
     }
-
-    cv::Point2f mc = cv::Point2f(m.m10 / m.m00, m.m01 / m.m00);
-    float point[3];
-
-    int is_deproject = d455->deproject(mc.x,mc.y,point);
-//    d455->deproject(mc.x,mc.y,point);
-
-    std::cout <<"x="<< mc.x <<"y="<< mc.y <<"z"<< point[2] << std::endl;
-
-    cv::drawContours(rs2_frames.imgAlignedRGB, contours, largest_contours_index, cv::Scalar( 0, 255, 0 ),2);
-    centroid = rs2_frames.imgAlignedRGB.clone();
-    cv::circle(centroid, mc, 4, cv::Scalar(255,0,0), 2, 4);
-    cv::imshow("result", rs2_frames.imgAlignedRGB);
-
-    //copy RGB image -> imgResult
-//    *imgResult = rs2_frames.imgAlignedRGB.clone();
     *imgResult = centroid.clone();
+
 	/*
 	//------------------------------------------------------------------------------------------------------------------------
 	//Detection of Blue Doctor's position and rectangle
