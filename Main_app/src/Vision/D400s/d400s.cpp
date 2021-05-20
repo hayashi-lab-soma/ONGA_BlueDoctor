@@ -25,6 +25,17 @@ int D400s::init()
 
         align_to_depth = new rs2::align(RS2_STREAM_DEPTH);
         align_to_color = new rs2::align(RS2_STREAM_COLOR);
+
+        _rs_frames = new rs2::frameset();
+        rs_frames = new rs2::frameset();
+
+        *_rs_frames = rsPipe->wait_for_frames();
+        *rs_frames = align_to_color->process(*_rs_frames);
+
+        video_frame = new rs2::video_frame(rs_frames->get_color_frame());
+        depth_frame = new rs2::depth_frame(rs_frames->get_depth_frame());
+
+        intr_depth = (profile.get_stream(RS2_STREAM_DEPTH).as<rs2::video_stream_profile>()).get_intrinsics();
     }
     catch (const rs2::error &e) {
         qCritical() << "[RS Error]:" << e.get_failed_function().c_str();
@@ -40,28 +51,50 @@ int D400s::init()
 int D400s::getFrames(RS2::Frames_t &frames)
 {
     try {
-        rs2::frameset _rs_frames = rsPipe->wait_for_frames();
+//        rs2::frameset _rs_frames = rsPipe->wait_for_frames();
 
-        rs2::frameset rs_frames = align_to_color->process(_rs_frames);
-        rs2::video_frame video = rs_frames.get_color_frame();
-        rs2::depth_frame depth = rs_frames.get_depth_frame();
+//        rs2::frameset rs_frames = align_to_color->process(_rs_frames);
+//        rs2::video_frame video = rs_frames.get_color_frame();
+//        rs2::depth_frame depth = rs_frames.get_depth_frame();
 
-        frames.scale = depth.get_units();
+//        frames.scale = depth.get_units();
 
-        frames.imgRGB = cv::Mat(video.get_height(),
-                                video.get_width(),
+//        frames.imgRGB = cv::Mat(video.get_height(),
+//                                video.get_width(),
+//                                CV_8UC3,
+//                                (void*)video.get_data()).clone();
+
+//        frames.imgDepth = cv::Mat(depth.get_height(),
+//                                  depth.get_width(),
+//                                  CV_16UC1,
+//                                  (void*)depth.get_data()).clone();
+
+//        frames.imgAlignedRGB = cv::Mat(video.get_height(),
+//                                       video.get_width(),
+//                                       CV_8UC3,
+//                                       (void*)video.get_data()).clone();
+
+        *_rs_frames = rsPipe->wait_for_frames();
+        *rs_frames = align_to_color->process(*_rs_frames);
+        *video_frame = rs_frames->get_color_frame();
+        *depth_frame = rs_frames->get_depth_frame();
+
+        frames.scale = depth_frame->get_units();
+
+        frames.imgRGB = cv::Mat(video_frame->get_height(),
+                                video_frame->get_width(),
                                 CV_8UC3,
-                                (void*)video.get_data()).clone();
+                                (void*)video_frame->get_data()).clone();
 
-        frames.imgDepth = cv::Mat(depth.get_height(),
-                                  depth.get_width(),
+        frames.imgDepth = cv::Mat(depth_frame->get_height(),
+                                  depth_frame->get_width(),
                                   CV_16UC1,
-                                  (void*)depth.get_data()).clone();
+                                  (void*)depth_frame->get_data()).clone();
 
-        frames.imgAlignedRGB = cv::Mat(video.get_height(),
-                                       video.get_width(),
+        frames.imgAlignedRGB = cv::Mat(video_frame->get_height(),
+                                       video_frame->get_width(),
                                        CV_8UC3,
-                                       (void*)video.get_data()).clone();
+                                       (void*)video_frame->get_data()).clone();
     }
     catch (const rs2::error &e) {
         qCritical() << "[RS Error]:" << e.get_failed_function().c_str();
@@ -70,6 +103,26 @@ int D400s::getFrames(RS2::Frames_t &frames)
         return -1;
     }
 
+    return 0;
+}
+
+/*!
+ * \brief D400s::deproject
+ * \param u
+ * \param v
+ * \param point
+ * \return
+ */
+int D400s::deproject(int u, int v, float point[])
+{
+    try{
+        float pixel[2] = {(float)u, (float)v};
+        float d = depth_frame->get_distance(u, v);
+        rs2_deproject_pixel_to_point(point,&intr_depth,pixel,d);
+    }
+    catch(rs2::error &e){
+        qWarning() << e.what();
+    }
     return 0;
 }
 
