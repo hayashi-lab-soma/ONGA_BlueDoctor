@@ -127,7 +127,7 @@ void Vision::main(Data *data)
     cv::findContours(mask, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
     int largest_area = 0;
-    int largest_contours_index = 0;
+    int largest_contours_index = -1;
     cv::Rect bounding_rect;
     cv::Moments m;
     cv::Mat centroid;
@@ -141,7 +141,7 @@ void Vision::main(Data *data)
         }
     }
 
-    if(largest_contours_index!=-1){
+    if(largest_contours_index != -1){
         m = cv::moments(contours[largest_contours_index]);
         cv::Point2f mc = cv::Point2f(m.m10 / m.m00, m.m01 / m.m00);
         float point[3] = {0.0};
