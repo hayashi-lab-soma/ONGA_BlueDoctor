@@ -93,7 +93,7 @@ public:
 
 
     //For Finite State Machine
-    int ana_state;
+    int state;
 
     //For distance//kinoshita
     int divN;
@@ -112,11 +112,9 @@ public:
     bool isShowBDRect;
     bool isShowGrids;
     bool isShowLevel_Y,isShowLevel_R, isShowAnalyzed, isShowMeasured;
-
-		bool isInitTracker;
 };
 
-namespace FSM_Values
+namespace State
 {
 const int Init = 0;
 const int Stanby = 1;

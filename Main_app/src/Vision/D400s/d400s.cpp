@@ -1,9 +1,9 @@
 #include "d400s.h"
 
-D400s::D400s()
+D400s::D400s(bool isTest)
 {
+    this->isTest = isTest;
     rs2::log_to_console(RS2_LOG_SEVERITY_ERROR);
-
     rsPipe = nullptr;
     rsCfg = nullptr;
 }
@@ -11,14 +11,19 @@ D400s::D400s()
 int D400s::init()
 {
     qInfo() << "Try to open RealSense device ...";
+    if(isTest){
+        qInfo() << "Launch test mode";
+        return 0;
+    }
+
     try {
         rsPipe = new rs2::pipeline();
         rsCfg = new rs2::config();
 
         //enable streams
         rsCfg->disable_all_streams();
-        rsCfg->enable_stream(RS2_STREAM_COLOR, rs2_format::RS2_FORMAT_RGB8, 30);
-        rsCfg->enable_stream(RS2_STREAM_DEPTH, rs2_format::RS2_FORMAT_Z16, 30);
+        rsCfg->enable_stream(RS2_STREAM_COLOR, 848, 480, rs2_format::RS2_FORMAT_RGB8, 30);
+        rsCfg->enable_stream(RS2_STREAM_DEPTH, 848, 480, rs2_format::RS2_FORMAT_Z16, 30);
 
         //start device
         rs2::pipeline_profile profile = rsPipe->start(*rsCfg);
@@ -34,6 +39,8 @@ int D400s::init()
 
         video_frame = new rs2::video_frame(rs_frames->get_color_frame());
         depth_frame = new rs2::depth_frame(rs_frames->get_depth_frame());
+        //        *video_frame = rs_frames->get_color_frame();
+        //        *depth_frame = rs_frames->get_depth_frame();
 
         intr_depth = (profile.get_stream(RS2_STREAM_DEPTH).as<rs2::video_stream_profile>()).get_intrinsics();
     }
@@ -50,30 +57,14 @@ int D400s::init()
 
 int D400s::getFrames(RS2::Frames_t &frames)
 {
+    if(isTest){
+        frames.imgRGB = cv::Mat(480,640,CV_8UC3,cv::Scalar(0,0,0));
+        frames.imgDepth = cv::Mat(480,640,CV_8UC1,cv::Scalar(0));
+        frames.imgAlignedRGB = cv::Mat(480,640,CV_8UC3,cv::Scalar(0,0,0));
+        return 0;
+    }
+
     try {
-//        rs2::frameset _rs_frames = rsPipe->wait_for_frames();
-
-//        rs2::frameset rs_frames = align_to_color->process(_rs_frames);
-//        rs2::video_frame video = rs_frames.get_color_frame();
-//        rs2::depth_frame depth = rs_frames.get_depth_frame();
-
-//        frames.scale = depth.get_units();
-
-//        frames.imgRGB = cv::Mat(video.get_height(),
-//                                video.get_width(),
-//                                CV_8UC3,
-//                                (void*)video.get_data()).clone();
-
-//        frames.imgDepth = cv::Mat(depth.get_height(),
-//                                  depth.get_width(),
-//                                  CV_16UC1,
-//                                  (void*)depth.get_data()).clone();
-
-//        frames.imgAlignedRGB = cv::Mat(video.get_height(),
-//                                       video.get_width(),
-//                                       CV_8UC3,
-//                                       (void*)video.get_data()).clone();
-
         *_rs_frames = rsPipe->wait_for_frames();
         *rs_frames = align_to_color->process(*_rs_frames);
         *video_frame = rs_frames->get_color_frame();
@@ -123,6 +114,7 @@ int D400s::deproject(int u, int v, float point[])
     catch(rs2::error &e){
         qWarning() << e.what();
     }
+
     return 0;
 }
 

@@ -7,9 +7,6 @@
 #include <QRectF>
 //#include <QRandomGenerator>
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/tracking.hpp>
-
 #include "../Config/config.h"
 #include "../Data/data.h"
 #include "R200/r200.h"
@@ -75,11 +72,7 @@ private:
     QString savepath_R;
     QString saveDis;
 
-
-		cv::Ptr<cv::Tracker> tracker;
-		bool isTracking;
-
-    Data *data;
+    QString disT,disM,disB;
 
 private slots:
     void area_Clear();
