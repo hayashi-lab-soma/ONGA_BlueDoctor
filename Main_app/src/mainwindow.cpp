@@ -41,13 +41,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    thMain->exit();
-    thBD->exit();
-    thImgProcess->exit();
-
-    thMain->wait();
-    thBD->wait();
-    thImgProcess->wait();
     delete ui;
 }
 
@@ -172,10 +165,30 @@ void MainWindow::main()
     //Vision main process
     vision->main(data);
 
+    //main process
+    TRACE(QString("State:%1").arg(data->state));
 
-    //Measurement process
-    //    fsm->main(data);
-
+    switch(data->state){
+    case State::Stanby:
+        //Transition?
+        if(data->isMeasure) data->state = State::Measurement;
+        break;
+    case State::Measurement:
+        //Transition?
+        if(!data->isMeasure) data->state = State::Stanby;
+        else{
+            //do measurement process
+            //push back BD data to list
+            data->BDs << data->BD;
+            TRACE(QString("BD position : %1, %2").arg(data->BD.XY.x()).arg(data->BD.XY.y()));
+            TRACE(QString("BD data count : %1").arg(data->BDs.count()));
+        }
+        break;
+    case State::Analyze:
+        break;
+    case State::Refresh:
+        break;
+    }
 
     //call PlaneViewer::setData()
     emit updateData(data);
@@ -229,23 +242,15 @@ QMdiSubWindow* MainWindow::addMdiSubWindow(QWidget *widget)
 void MainWindow::start()
 {
     thMain = new QThread();
-    thBD = new QThread();
-    thImgProcess = new QThread();
-    timer = new QTimer();
-
-//  Move tasks to each threads
-    timer->moveToThread(thMain);
-    bdrcvr->moveToThread(thBD);
-    vision->moveToThread(thImgProcess);
-
-
-    timer->setInterval(cfg->getInteger("MAIN", "INTERVAL"));
-    connect(timer, SIGNAL(timeout()),this, SLOT(main()),
-            Qt::DirectConnection);
-
     thMain->start();
-    thBD->start();
-    thImgProcess->start();
+
+    timer = new QTimer();
+    timer->setInterval(cfg->getInteger("MAIN", "INTERVAL"));
+    timer->moveToThread(thMain);
+
+    connect(timer, SIGNAL(timeout()),
+            this, SLOT(main()),
+            Qt::DirectConnection);
 
     QMetaObject::invokeMethod(timer, "start");
     qInfo() << "--- Start Main Process ---";
@@ -278,19 +283,18 @@ void MainWindow::on_actOpenDepthCSV_triggered()
 {
     QString FileName = QFileDialog::getOpenFileName(this,
                                                     QString("Open Depth CSV File"),
-                                                    QDir::rootPath());
+                                                    QDir::rootPath(),
+                                                    QString("CSV (*.csv);;"));
 
     if(FileName.isEmpty()) return;//when cansel
     QFile file(FileName);
-    if( ! file.open(QIODevice::ReadOnly) ){
+    if(!file.open(QIODevice::ReadOnly) ){
         QMessageBox::information(this, tr("Unable to open file as read mode"), file.errorString());
         return;
     }//if error to read file
 
-    QString csvName = FileName.right(23);
-
-    QString str;
     QTextStream in(&file);
+    QString str;
     str = in.readAll();//all strings in file enter to "str"
 
     std::string stdstr = str.toStdString();
@@ -329,13 +333,14 @@ void MainWindow::on_actOpenDepthCSV_triggered()
         disM = data->dis[M];
         disB = data->dis[B];
     }
+
     data->disT = QString::number(disT);
     data->disM = QString::number(disM);
     data->disB = QString::number(disB);
 
     QMessageBox::information(this,
-                             "CSV file open",
-                             csvName+" opened");
+                             "CSV file open success",
+                             file.fileName());
 }
 
 
@@ -357,12 +362,7 @@ void MainWindow::on_actAlarm_ON_triggered()
     }
 }
 
-void MainWindow::on_actShowGrids_triggered()
-{
-    data->isShowGrids = !data->isShowGrids;
-}
-
-void MainWindow::on_actInitTracker_triggered()
-{
-	data->isInitTracker = true;
-}
+//void MainWindow::on_actShowGrids_triggered()
+//{
+//    data->isShowGrids = !data->isShowGrids;
+//}

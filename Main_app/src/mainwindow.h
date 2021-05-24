@@ -57,10 +57,7 @@ private slots:
     void on_actSpoit_triggered();
     void setHSVRanges(cv::Range h, cv::Range s, cv::Range v);
     void openPopup();
-
-    void on_actShowGrids_triggered();
-
-		void on_actInitTracker_triggered();
+    //    void on_actShowGrids_triggered();
 
 signals:
     void updateTime();
@@ -70,8 +67,6 @@ signals:
 private:
     Ui::MainWindow *ui;
     QThread *thMain;
-    QThread *thBD;
-    QThread *thImgProcess;
     QTimer *timer;
 
     Config *cfg;

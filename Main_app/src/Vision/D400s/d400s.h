@@ -43,13 +43,13 @@ struct Frames_t
 class D400s
 {
 public:
-    D400s();
+    D400s(bool isTest);
     int init();
     int getFrames(RS2::Frames_t &frames);
 
     int deproject(int u, int v, float point[]);
-
 private:
+    bool isTest;
     rs2::pipeline *rsPipe;
     rs2::config *rsCfg;
     rs2::frameset *_rs_frames;

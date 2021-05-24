@@ -35,7 +35,7 @@ Data::Data()
     mapBDState2cvScalar[BD_STATE_COLOR::Orange] = new cv::Scalar(BD_STATE_COLOR::CV_SCALAR::Orange);
     mapBDState2cvScalar[BD_STATE_COLOR::Red] = new cv::Scalar(BD_STATE_COLOR::CV_SCALAR::Red);
 
-    ana_state = FSM_Values::Stanby;
+    state = State::Stanby;
 
     isCamParamChange = false;
 
@@ -52,7 +52,6 @@ Data::Data()
 
     isShowLevel_Y = isShowLevel_R = isShowAnalyzed = isShowMeasured = false;
 
-		isInitTracker = false;
 
     //Make logs directory
     QDir dir;

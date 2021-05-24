@@ -36,7 +36,7 @@
    <addaction name="actShowGreenTarget"/>
    <addaction name="actShowGrids"/>
    <addaction name="actSpoit"/>
-   <addaction name="actInitTracker"/>
+   <addaction name="actOpenDepthCSV"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="font">
@@ -75,7 +75,6 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actOpenDepthCSV"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menutest"/>
@@ -118,6 +117,10 @@
    </property>
   </action>
   <action name="actOpenDepthCSV">
+   <property name="icon">
+    <iconset resource="../resource/rsc.qrc">
+     <normaloff>:/IMAGE/open_csv.png</normaloff>:/IMAGE/open_csv.png</iconset>
+   </property>
    <property name="text">
     <string>Open Depth CSV</string>
    </property>
@@ -174,20 +177,10 @@
     <string>Alarm ON</string>
    </property>
   </action>
-  <action name="actInitTracker">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>../resource/tracker.png</normaloff>../resource/tracker.png</iconset>
-   </property>
-   <property name="text">
-    <string>InitTraker</string>
-   </property>
-  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../resource/rsc.qrc"/>
+ </resources>
  <connections/>
 </ui>
