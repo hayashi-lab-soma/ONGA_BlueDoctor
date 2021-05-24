@@ -29,6 +29,11 @@ Vision::Vision(QObject *parent) : QObject(parent)
     cmpBD.centroid = QPoint(0, 0);
     cmpBD.size = QSize(0, 0);
     cmpBD.tl = QPoint(0, 0);
+
+    lightpos.area = -INFINITY;
+    lightpos.centroid = QPoint(0,0);
+    lightpos.size = QSize(0,0);
+    lightpos.tl = QPoint(0,0);
 }
 
 int Vision::initialize()
@@ -134,6 +139,68 @@ void Vision::main(Data *data)
     //Additional image processing
 //    cv::medianBlur(*imgBinBD,*imgBinBD, 3);
 //    cv::morphologyEx(*imgBinBD, *imgBinBD, cv::MORPH_CLOSE, 3);
+
+    //Detection of light's position and rectangle
+    std::vector<std::vector<cv::Point> > contours;
+    std::vector<cv::Vec4i> hierarchy;
+    cv::Mat imgHSV_l,mask;
+    cv::cvtColor(rs2_frames.imgAlignedRGB, imgHSV_l, cv::COLOR_RGB2HSV, 3);
+    //Threashold by HSV range
+    cv::Scalar lower_l = cv::Scalar(49, 100, 33);
+    cv::Scalar upper_l = cv::Scalar(147, 255, 255);
+    cv::inRange(imgHSV_l, lower_l, upper_l, mask);
+    cv::imshow("hsv",imgHSV_l);
+    cv::imshow("mask",mask);
+
+    cv::findContours(mask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+    int largest_area = 0;
+    int largest_contours_index = -1;
+//    cv::Rect bounding_rect;
+    std::vector<cv::Rect> boundRect( contours.size() );
+    cv::Rect bounding_rect;
+    cv::Moments m;
+    cv::Mat centroid;
+    float x, y, wl, hl;
+//    std::vector<cv::RotatedRect> rectlight;
+//    cv::RotatedRect rect(cv::Point(256, 256), cv::Size(50, 200), 45);
+
+    for(size_t i=0; i<contours.size(); i++){
+        double area = cv::contourArea(contours[i]);
+        if (area > largest_area) {
+            largest_area = area;
+            largest_contours_index = i;
+//            bounding_rect = cv::boundingRect(contours[i]);
+            boundRect[i] = cv::boundingRect(contours[i]);
+//            std::cout <<"bounding="<< boundRect[i].tl() << std::endl;
+            cv::rectangle(rs2_frames.imgAlignedRGB, boundRect[i].tl(), boundRect[i].br(),cv::Scalar( 255, 0, 0 ),2);
+            x = boundRect[i].x;
+            y = boundRect[i].y;
+            wl = boundRect[i].width;
+            hl = boundRect[i].height;
+            lightpos.size = QSize(wl,hl);
+//            rectlight = cv::rotatedRect((x+w/2,y+h/2),(w,h),0);
+            lightpos.centroid = QPoint(x+wl/2,y+hl/2);
+//            cv::RotatedRect rect(cv::Point(x+wl/2,y+hl/2), cv::Size(wl,hl), 0);
+//            std::cout <<"bound w="<< RotatedRect << std::endl;
+        }
+    }
+
+    if(largest_contours_index != -1){
+            m = cv::moments(contours[largest_contours_index]);
+            cv::Point2f mc = cv::Point2f(m.m10 / m.m00, m.m01 / m.m00);
+            float point[3] = {0.0};
+            d455->deproject(mc.x,mc.y,point);
+    //        std::cout <<"x="<< mc.x <<" y="<< mc.y << std::endl;
+//            std::cout <<"x="<< point[0] <<" y="<< point[1] <<" z="<< point[2] << std::endl;
+//            cv::drawContours(rs2_frames.imgAlignedRGB, contours, largest_contours_index, cv::Scalar( 0, 255, 0 ),2);
+            centroid = rs2_frames.imgAlignedRGB.clone();
+            cv::circle(centroid, mc, 4, cv::Scalar(255,0,0), 2, 4);
+//            cv::imshow("result", rs2_frames.imgAlignedRGB);
+    }else{
+        centroid = rs2_frames.imgAlignedRGB;
+    }
+    *imgResult = centroid.clone();
 
     //labeling process on binary image
     cv::Mat matLabels = cv::Mat();
@@ -412,6 +479,24 @@ void Vision::DrawResults(Data *data)
                           5);
         }
     }
+    cv::RotatedRect rectBD(cv::Point(max_area_cmp.tl.x()+max_area_cmp.size.width()/2,max_area_cmp.tl.y()+max_area_cmp.size.height()/2), cv::Size(max_area_cmp.size.width(),max_area_cmp.size.height()), 0);
+    cv::RotatedRect rectlight(cv::Point(lightpos.centroid.x(),lightpos.centroid.y()),cv::Size(lightpos.size.width(),lightpos.size.height()),0);
+
+    std::vector<cv::Point2f> vertices;
+    cv::Mat inter;
+    cv::rotatedRectangleIntersection(rectBD,rectlight,vertices);
+//    std::cout << "inter"<<intersectionType << std::endl;
+//    if(intersectionType == 2){
+    std::cout << "true"<< vertices << std::endl;
+//    if (vertices.empty()){
+//            throw;
+//    }
+    inter = rs2_frames.imgAlignedRGB.clone();
+    DrawPointSet(inter, std::vector<cv::Point>(vertices.begin(), vertices.end()), 10, cv::Scalar(0, 0, 255),-1,cv::LINE_AA);
+//    *imgResult = inter.clone();
+
+//    }
+//            drawCrossPoint(imageFrame, s1,s2)
     //--------------------------------------------------
 
     //--------------------------------------------------
@@ -536,6 +621,14 @@ void Vision::DrawResults(Data *data)
     //--------------------------------------------------
 
     return;
+}
+
+void Vision::DrawPointSet(cv::Mat& imgInoutput, std::vector<cv::Point> vecPoint, int radius, const cv::Scalar& color, int thickness, int lineType)
+{
+    for (size_t i = 0; i < vecPoint.size(); i++)
+        cv::circle(imgInoutput, vecPoint[i], radius, color, thickness, lineType);
+    *imgResult = imgInoutput.clone();
+//        cv::circle(imgInoutput, cv::Point(10,10), radius, color, thickness, lineType);
 }
 
 void Vision::saveimage(QString savepath){
