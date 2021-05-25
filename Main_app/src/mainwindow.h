@@ -77,6 +77,7 @@ private:
 
     ImageViewer *imgVwrRGB;
     ImageViewer *imgVwrBin;
+    ImageViewer *imgVwrBD;
     PlaneViewer *plnVwr;
 
     //    Spoit_ImageViewer *spoit;
@@ -87,6 +88,7 @@ private:
 
     QMdiSubWindow *swImgVwrRGB;
     QMdiSubWindow *swImgVwrBin;
+    QMdiSubWindow *swImgVwrBD;
     QMdiSubWindow *swPlnVwr;
     QMdiSubWindow *swMainCont;
 
