@@ -42,7 +42,8 @@ private:
 
 signals:
     void updatedRGB(cv::Mat*);
-    void updatedImgMask(cv::Mat *img);
+    void updatedImgBD(cv::Mat *img);
+    void updatedImgGreen(cv::Mat *img);
     void lostError();
 
 public slots:
@@ -61,6 +62,7 @@ private:
     Compornent_t max_area_cmp;	//at "t"
     Compornent_t cmpBD;					//buffer
 
+    cv::Mat *imgBinGreen;
     cv::Mat *imgBinBD;
     cv::Mat *imgResult;
     cv::Mat *imgpic;

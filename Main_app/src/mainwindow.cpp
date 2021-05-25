@@ -51,8 +51,8 @@ void MainWindow::setup()
 {
     //Create GUI instalce
     imgVwrRGB = new ImageViewer("RGB", this);
-    imgVwrBin = new ImageViewer("Binary", this);
-    imgVwrBD = new ImageViewer("BlueDoctor", this);
+    imgVwrBin = new ImageViewer("Green HSV", this);
+    imgVwrBD = new ImageViewer("BlueDoctor HSV", this);
     plnVwr = new PlaneViewer(this);
 
     //    spoit = new Spoit_ImageViewer("Spoit", this);
@@ -99,8 +99,8 @@ void MainWindow::setup()
 
     //signal-slot Vision to GUI classes
     connect(vision, SIGNAL(updatedRGB(cv::Mat*)), imgVwrRGB, SLOT(setImage(cv::Mat*)));
-    connect(vision, SIGNAL(updatedImgMask(cv::Mat*)), imgVwrBin, SLOT(setImage(cv::Mat*)));
-//    connect(vision, SIGNAL(updatedImgMask(cv::Mat*)), imgVwrBD, SLOT(setImage(cv::Mat*)));
+    connect(vision, SIGNAL(updatedImgGreen(cv::Mat*)), imgVwrBin, SLOT(setImage(cv::Mat*)));
+    connect(vision, SIGNAL(updatedImgBD(cv::Mat*)), imgVwrBD, SLOT(setImage(cv::Mat*)));
 
     /***
      * Action trigger slots
