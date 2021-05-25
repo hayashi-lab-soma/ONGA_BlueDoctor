@@ -39,6 +39,7 @@ private:
     int Spoit(Data *data);
     void cv_mouseCallBack(int event, int x, int y, int flags, void *userdata);
     void DrawResults(Data *data);
+    void DrawPointSet(cv::Mat& imgInoutput, std::vector<cv::Point> vecPoint, int radius, const cv::Scalar& color, int thickness, int lineType);
 
 signals:
     void updatedRGB(cv::Mat*);
@@ -60,6 +61,7 @@ private:
     RS2::Frames_t rs2_frames;
 
     Compornent_t max_area_cmp;	//at "t"
+    Compornent_t lightpos;
     Compornent_t cmpBD;					//buffer
 
     cv::Mat *imgBinGreen;
