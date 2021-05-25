@@ -179,19 +179,17 @@ void Vision::main(Data *data)
         if (area > largest_area) {
             largest_area = area;
             largest_contours_index = i;
-//            bounding_rect = cv::boundingRect(contours[i]);
+
             boundRect[i] = cv::boundingRect(contours[i]);
-//            std::cout <<"bounding="<< boundRect[i].tl() << std::endl;
             cv::rectangle(rs2_frames.imgAlignedRGB, boundRect[i].tl(), boundRect[i].br(),cv::Scalar( 255, 0, 0 ),2);
             x = boundRect[i].x;
             y = boundRect[i].y;
             wl = boundRect[i].width;
             hl = boundRect[i].height;
             lightpos.size = QSize(wl,hl);
-//            rectlight = cv::rotatedRect((x+w/2,y+h/2),(w,h),0);
+
             lightpos.centroid = QPoint(x+wl/2,y+hl/2);
-//            cv::RotatedRect rect(cv::Point(x+wl/2,y+hl/2), cv::Size(wl,hl), 0);
-//            std::cout <<"bound w="<< RotatedRect << std::endl;
+
         }
     }
 
@@ -495,16 +493,18 @@ void Vision::DrawResults(Data *data)
 
     std::vector<cv::Point2f> vertices;
     cv::Mat inter;
-    cv::rotatedRectangleIntersection(rectBD,rectlight,vertices);
-//    std::cout << "inter"<<intersectionType << std::endl;
+    int status = cv::rotatedRectangleIntersection(rectBD,rectlight,vertices);
 //    if(intersectionType == 2){
-    std::cout << "true"<< vertices << std::endl;
-//    if (vertices.empty()){
-//            throw;
-//    }
+    std::cout << "vertices"<< vertices << "status" << status << std::endl;
     inter = rs2_frames.imgAlignedRGB.clone();
-    DrawPointSet(inter, std::vector<cv::Point>(vertices.begin(), vertices.end()), 10, cv::Scalar(0, 0, 255),-1,cv::LINE_AA);
-//    *imgResult = inter.clone();
+    DrawPointSet(inter, std::vector<cv::Point>(vertices.begin(), vertices.end()), 5, cv::Scalar(0, 0, 255),-1,cv::LINE_AA);
+    cv::Mat getcentroid;
+    if(status>0){
+        std::cout << "x" << max_area_cmp.centroid.x() << std::endl;
+        getcentroid = rs2_frames.imgAlignedRGB.clone();
+        cv::circle(getcentroid, cv::Point(max_area_cmp.centroid.x(),max_area_cmp.centroid.y()), 4, cv::Scalar(255,0,0), 2, 4);
+
+    }
 
 //    }
 //            drawCrossPoint(imageFrame, s1,s2)
@@ -639,7 +639,6 @@ void Vision::DrawPointSet(cv::Mat& imgInoutput, std::vector<cv::Point> vecPoint,
     for (size_t i = 0; i < vecPoint.size(); i++)
         cv::circle(imgInoutput, vecPoint[i], radius, color, thickness, lineType);
     *imgResult = imgInoutput.clone();
-//        cv::circle(imgInoutput, cv::Point(10,10), radius, color, thickness, lineType);
 }
 
 void Vision::saveimage(QString savepath){
