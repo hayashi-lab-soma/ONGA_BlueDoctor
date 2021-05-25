@@ -52,6 +52,8 @@ int Vision::initialize()
     if(d455->init() == -1) return -1;
     imgResult = new cv::Mat();
     imgBinBD = new cv::Mat();
+    imgBinGreen = new cv::Mat();
+
 #endif
 
     QThread::msleep(200);
@@ -125,15 +127,22 @@ void Vision::main(Data *data)
 
     //------------------------------------------------------------------------------------------------------------------------
     //Detection of Blue Doctor's position and rectangle
-    cv::Mat imgHSV;
-    cv::cvtColor(rs2_frames.imgAlignedRGB, imgHSV, cv::COLOR_RGB2HSV);
+    cv::Mat imgGreenHSV;
+    cv::cvtColor(rs2_frames.imgAlignedRGB, imgGreenHSV, cv::COLOR_RGB2HSV);
     //Threashold by HSV range
-    cv::Scalar lower = cv::Scalar(data->hsvRngsGreen.H.start, data->hsvRngsGreen.S.start, data->hsvRngsGreen.V.start);
-    cv::Scalar upper = cv::Scalar(data->hsvRngsGreen.H.end, data->hsvRngsGreen.S.end, data->hsvRngsGreen.V.end);
-    cv::inRange(imgHSV, lower, upper, *imgBinBD);
+    cv::Scalar lower_g = cv::Scalar(data->hsvRngsGreen.H.start, data->hsvRngsGreen.S.start, data->hsvRngsGreen.V.start);
+    cv::Scalar upper_g = cv::Scalar(data->hsvRngsGreen.H.end, data->hsvRngsGreen.S.end, data->hsvRngsGreen.V.end);
+    cv::inRange(imgGreenHSV, lower_g, upper_g, *imgBinGreen);
     //Additional image processing
 //    cv::medianBlur(*imgBinBD,*imgBinBD, 3);
 //    cv::morphologyEx(*imgBinBD, *imgBinBD, cv::MORPH_CLOSE, 3);
+
+    cv::Mat imgBDHSV;
+    cv::cvtColor(rs2_frames.imgAlignedRGB, imgBDHSV, cv::COLOR_RGB2HSV);
+    //Threashold by HSV range
+    cv::Scalar lower_bd = cv::Scalar(data->hsvRngsBD.H.start, data->hsvRngsBD.S.start, data->hsvRngsBD.V.start);
+    cv::Scalar upper_bd = cv::Scalar(data->hsvRngsBD.H.end, data->hsvRngsBD.S.end, data->hsvRngsBD.V.end);
+    cv::inRange(imgBDHSV, lower_bd, upper_bd, *imgBinBD);
 
     //labeling process on binary image
     cv::Mat matLabels = cv::Mat();
@@ -223,7 +232,9 @@ NoWhite:
 
     //signals
     emit updatedRGB(imgResult);
-    emit updatedImgMask(imgBinBD);
+    emit updatedImgGreen(imgBinGreen);
+    emit updatedImgBD(imgBinBD);
+
     return;
 }
 #endif
@@ -272,7 +283,7 @@ int Vision::DetectionBlueDoctor(cv::Mat *img,
     cv::Mat stats = cv::Mat();
     cv::Mat centroids = cv::Mat();
 
-    int numLabels = cv::connectedComponentsWithStats(*imgBinBD,
+    int numLabels = cv::connectedComponentsWithStats(*imgBinGreen,
                                                      matLabels,
                                                      stats,
                                                      centroids,

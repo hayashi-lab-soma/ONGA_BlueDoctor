@@ -51,11 +51,13 @@ void MainWindow::setup()
 {
     //Create GUI instalce
     imgVwrRGB = new ImageViewer("RGB", this);
-    imgVwrBin = new ImageViewer("Binary", this);
+    imgVwrBin = new ImageViewer("Green HSV", this);
+    imgVwrBD = new ImageViewer("BlueDoctor HSV", this);
     plnVwr = new PlaneViewer(this);
 
     //    spoit = new Spoit_ImageViewer("Spoit", this);
     hsvRngCont = new HSVRangeController(this);
+    bdRngCont = new HSVRangeController(this);
     camParamCont = new CameraParameterContoller(this);
 
     mainCont = new MainController(this);
@@ -68,11 +70,18 @@ void MainWindow::setup()
 
     imgVwrRGB->initialize(CV_8UC3, QImage::Format_RGB888);
     imgVwrBin->initialize(CV_8UC1, QImage::Format_Grayscale8);
+    imgVwrBD->initialize(CV_8UC1, QImage::Format_Grayscale8);
     plnVwr->initialize();
 
-    hsvRngCont->initialize(data);
+    int hsvRngType = 0;
+    hsvRngCont->initialize(data, hsvRngType);
     hsvRngCont->setWindowFlags(Qt::Window);
     hsvRngCont->close();
+
+    int bdRngType = 1;
+    bdRngCont->initialize(data, bdRngType);
+    bdRngCont->setWindowFlags(Qt::Window);
+    bdRngCont->close();
 
     camParamCont->initialize(data);
     camParamCont->setWindowFlags(Qt::Window);
@@ -84,16 +93,22 @@ void MainWindow::setup()
     //Add MDI area as sub windows
     swImgVwrRGB = addMdiSubWindow(imgVwrRGB);
     swImgVwrBin = addMdiSubWindow(imgVwrBin);
+    swImgVwrBD = addMdiSubWindow(imgVwrBD);
     swPlnVwr = addMdiSubWindow(plnVwr);
     swMainCont = addMdiSubWindow(mainCont);
 
     //signal-slot Vision to GUI classes
     connect(vision, SIGNAL(updatedRGB(cv::Mat*)), imgVwrRGB, SLOT(setImage(cv::Mat*)));
-    connect(vision, SIGNAL(updatedImgMask(cv::Mat*)), imgVwrBin, SLOT(setImage(cv::Mat*)));
+    connect(vision, SIGNAL(updatedImgGreen(cv::Mat*)), imgVwrBin, SLOT(setImage(cv::Mat*)));
+    connect(vision, SIGNAL(updatedImgBD(cv::Mat*)), imgVwrBD, SLOT(setImage(cv::Mat*)));
 
     /***
      * Action trigger slots
      ***/
+    connect(ui->actBDHSV, &QAction::triggered, this,
+            [=](){
+        bdRngCont->show();
+            });
     connect(ui->actGreenHSV, &QAction::triggered, this,
             [=](){
         hsvRngCont->show();
@@ -206,6 +221,8 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     swImgVwrRGB->move(0,0);
     swImgVwrBin->resize(ui->mdi->width()*0.25, ui->mdi->height()*0.35);
     swImgVwrBin->move(0, swImgVwrRGB->height());
+    swImgVwrBD->resize(ui->mdi->width()*0.25, ui->mdi->height()*0.35);
+    swImgVwrBD->move(0,swImgVwrRGB->height());
 
     swPlnVwr->resize(ui->mdi->width()*0.6, ui->mdi->height()*0.65);
     swPlnVwr->move(swImgVwrRGB->width(), 0);

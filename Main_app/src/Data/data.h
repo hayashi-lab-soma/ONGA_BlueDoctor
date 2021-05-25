@@ -72,6 +72,7 @@ public:
     QRectF fov;
     Camera_Params_t camParams;
     HSV_Ranges_t hsvRngsGreen;
+    HSV_Ranges_t hsvRngsBD;
     QPointF posBD_m;
     QPoint posBD_pix;
     double wall_depth;

@@ -54,7 +54,7 @@
      <x>0</x>
      <y>0</y>
      <width>335</width>
-     <height>29</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="font">
@@ -67,6 +67,7 @@
     <property name="title">
      <string>Option</string>
     </property>
+    <addaction name="actBDHSV"/>
     <addaction name="actGreenHSV"/>
     <addaction name="actCamParam"/>
     <addaction name="actAlarm_ON"/>
@@ -118,7 +119,7 @@
   </action>
   <action name="actOpenDepthCSV">
    <property name="icon">
-    <iconset resource="../resource/rsc.qrc">
+    <iconset>
      <normaloff>:/IMAGE/open_csv.png</normaloff>:/IMAGE/open_csv.png</iconset>
    </property>
    <property name="text">
@@ -177,10 +178,13 @@
     <string>Alarm ON</string>
    </property>
   </action>
+  <action name="actBDHSV">
+   <property name="text">
+    <string>BlueDoctor HSV</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="../resource/rsc.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
