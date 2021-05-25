@@ -81,6 +81,7 @@ private:
 
     //    Spoit_ImageViewer *spoit;
     HSVRangeController *hsvRngCont;
+    HSVRangeController *bdRngCont;
     CameraParameterContoller *camParamCont;
     MainController *mainCont;
 

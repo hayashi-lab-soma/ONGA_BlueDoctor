@@ -56,6 +56,7 @@ void MainWindow::setup()
 
     //    spoit = new Spoit_ImageViewer("Spoit", this);
     hsvRngCont = new HSVRangeController(this);
+    bdRngCont = new HSVRangeController(this);
     camParamCont = new CameraParameterContoller(this);
 
     mainCont = new MainController(this);
@@ -70,9 +71,15 @@ void MainWindow::setup()
     imgVwrBin->initialize(CV_8UC1, QImage::Format_Grayscale8);
     plnVwr->initialize();
 
-    hsvRngCont->initialize(data);
+    int hsvRngType = 0;
+    hsvRngCont->initialize(data, hsvRngType);
     hsvRngCont->setWindowFlags(Qt::Window);
     hsvRngCont->close();
+
+    int bdRngType = 1;
+    bdRngCont->initialize(data, bdRngType);
+    bdRngCont->setWindowFlags(Qt::Window);
+    bdRngCont->close();
 
     camParamCont->initialize(data);
     camParamCont->setWindowFlags(Qt::Window);
@@ -94,6 +101,10 @@ void MainWindow::setup()
     /***
      * Action trigger slots
      ***/
+    connect(ui->actBDHSV, &QAction::triggered, this,
+            [=](){
+        bdRngCont->show();
+            });
     connect(ui->actGreenHSV, &QAction::triggered, this,
             [=](){
         hsvRngCont->show();

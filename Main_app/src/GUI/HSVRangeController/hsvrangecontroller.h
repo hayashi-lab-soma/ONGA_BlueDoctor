@@ -22,17 +22,18 @@ public:
 	explicit HSVRangeController(QWidget *parent = 0);
 	~HSVRangeController();
 
-	void initialize(Data *data);
+    void initialize(Data *data, int type);
 
 private slots:
-	void changedHRange(int min, int max);
-	void changedSRange(int min, int max);
-	void changedVRange(int min, int max);
+    void changedHRange(int min, int max);
+    void changedSRange(int min, int max);
+    void changedVRange(int min, int max);
 
 private:
 	Ui::HSVRangeController *ui;
 	Config *cfg;
 	Data *data;
+    int type;
 
 	RangeController *H;
 	RangeController *S;
