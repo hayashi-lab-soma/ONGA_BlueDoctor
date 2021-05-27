@@ -328,6 +328,20 @@ void Vision::DrawResults(Data *data)
                           cv::Scalar(255, 0, 0),
                           5);
         }
+
+        cv::RotatedRect rectBD(cv::Point(max_area_cmp_BD.centroid.x(),max_area_cmp_BD.centroid.y()),
+                               cv::Size(max_area_cmp_BD.size.width(),max_area_cmp_BD.size.height()), 0);
+        cv::RotatedRect rectlight(cv::Point(max_area_cmp_Green.centroid.x(),max_area_cmp_Green.centroid.y()),
+                                  cv::Size(max_area_cmp_Green.size.width(),max_area_cmp_Green.size.height()),0);
+
+        std::vector<cv::Point2f> vertices;
+        int status = cv::rotatedRectangleIntersection(rectBD,rectlight,vertices);
+        if(status>0){
+            std::cout << "x" << max_area_cmp_BD.centroid.x() << std::endl;
+            DrawPointSet(*imgResult, std::vector<cv::Point>(vertices.begin(), vertices.end()), 5, cv::Scalar(0, 0, 255),-1,cv::LINE_AA);
+            cv::circle(*imgResult, cv::Point(max_area_cmp_BD.centroid.x(),max_area_cmp_BD.centroid.y()), 4, cv::Scalar(255,0,0), 2, 4);
+
+        }
     }
 
     //--------------------------------------------------
