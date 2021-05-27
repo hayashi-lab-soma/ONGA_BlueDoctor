@@ -77,15 +77,18 @@ private:
 
     ImageViewer *imgVwrRGB;
     ImageViewer *imgVwrBin;
+    ImageViewer *imgVwrBD;
     PlaneViewer *plnVwr;
 
     //    Spoit_ImageViewer *spoit;
     HSVRangeController *hsvRngCont;
+    HSVRangeController *bdRngCont;
     CameraParameterContoller *camParamCont;
     MainController *mainCont;
 
     QMdiSubWindow *swImgVwrRGB;
     QMdiSubWindow *swImgVwrBin;
+    QMdiSubWindow *swImgVwrBD;
     QMdiSubWindow *swPlnVwr;
     QMdiSubWindow *swMainCont;
 
