@@ -43,7 +43,6 @@ private:
     void cv_mouseCallBack(int event, int x, int y, int flags, void *userdata);
     void DrawResults(Data *data);
     void DrawPointSet(cv::Mat& imgInoutput, std::vector<cv::Point> vecPoint, int radius, const cv::Scalar& color, int thickness, int lineType);
-    void hsvFilter(cv::Mat *output, HSV_Ranges_t range);
 
 signals:
     void updatedRGB(cv::Mat*);

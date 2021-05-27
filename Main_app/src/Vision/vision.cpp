@@ -329,27 +329,6 @@ void Vision::DrawResults(Data *data)
                           5);
         }
     }
-    cv::RotatedRect rectBD(cv::Point(max_area_cmp.tl.x()+max_area_cmp.size.width()/2,max_area_cmp.tl.y()+max_area_cmp.size.height()/2), cv::Size(max_area_cmp.size.width(),max_area_cmp.size.height()), 0);
-    cv::RotatedRect rectlight(cv::Point(lightpos.centroid.x(),lightpos.centroid.y()),cv::Size(lightpos.size.width(),lightpos.size.height()),0);
-
-    std::vector<cv::Point2f> vertices;
-    cv::Mat inter;
-    int status = cv::rotatedRectangleIntersection(rectBD,rectlight,vertices);
-//    if(intersectionType == 2){
-    std::cout << "vertices"<< vertices << "status" << status << std::endl;
-    inter = rs2_frames.imgAlignedRGB.clone();
-    DrawPointSet(inter, std::vector<cv::Point>(vertices.begin(), vertices.end()), 5, cv::Scalar(0, 0, 255),-1,cv::LINE_AA);
-    cv::Mat getcentroid;
-    if(status>0){
-        std::cout << "x" << max_area_cmp.centroid.x() << std::endl;
-        getcentroid = rs2_frames.imgAlignedRGB.clone();
-        cv::circle(getcentroid, cv::Point(max_area_cmp.centroid.x(),max_area_cmp.centroid.y()), 4, cv::Scalar(255,0,0), 2, 4);
-
-    }
-
-//    }
-//            drawCrossPoint(imageFrame, s1,s2)
-    //--------------------------------------------------
 
     //--------------------------------------------------
     //Draw grid lines
