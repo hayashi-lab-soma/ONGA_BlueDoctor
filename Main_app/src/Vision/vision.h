@@ -34,6 +34,7 @@ public:
     void setCameraParam(Camera_Params_t camParams);
 
 private:
+    void hsvFilter(cv::Mat *output, HSV_Ranges_t range);
     int DetectionBlueDoctor(cv::Mat *img, HSV_Ranges_t hsvRngs, double wall_depth,
                             QPointF &pos_m, QPoint &pos_pix);
     int Spoit(Data *data);

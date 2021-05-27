@@ -122,27 +122,8 @@ void Vision::main(Data *data)
     this->disM = data->disM;
     this->disB = data->disB;
 
-
-
-
-    //------------------------------------------------------------------------------------------------------------------------
-    //Detection of Blue Doctor's position and rectangle
-    cv::Mat imgGreenHSV;
-    cv::cvtColor(rs2_frames.imgAlignedRGB, imgGreenHSV, cv::COLOR_RGB2HSV);
-    //Threashold by HSV range
-    cv::Scalar lower_g = cv::Scalar(data->hsvRngsGreen.H.start, data->hsvRngsGreen.S.start, data->hsvRngsGreen.V.start);
-    cv::Scalar upper_g = cv::Scalar(data->hsvRngsGreen.H.end, data->hsvRngsGreen.S.end, data->hsvRngsGreen.V.end);
-    cv::inRange(imgGreenHSV, lower_g, upper_g, *imgBinGreen);
-    //Additional image processing
-//    cv::medianBlur(*imgBinBD,*imgBinBD, 3);
-//    cv::morphologyEx(*imgBinBD, *imgBinBD, cv::MORPH_CLOSE, 3);
-
-    cv::Mat imgBDHSV;
-    cv::cvtColor(rs2_frames.imgAlignedRGB, imgBDHSV, cv::COLOR_RGB2HSV);
-    //Threashold by HSV range
-    cv::Scalar lower_bd = cv::Scalar(data->hsvRngsBD.H.start, data->hsvRngsBD.S.start, data->hsvRngsBD.V.start);
-    cv::Scalar upper_bd = cv::Scalar(data->hsvRngsBD.H.end, data->hsvRngsBD.S.end, data->hsvRngsBD.V.end);
-    cv::inRange(imgBDHSV, lower_bd, upper_bd, *imgBinBD);
+    hsvFilter(imgBinGreen, data->hsvRngsGreen);
+    hsvFilter(imgBinBD, data->hsvRngsBD);
 
     //labeling process on binary image
     cv::Mat matLabels = cv::Mat();
@@ -252,6 +233,15 @@ void Vision::setCameraParam(Camera_Params_t camParams)
 void Vision::setAutoColorExposure()
 {
     r200->setAutoColorExposure();
+}
+
+void Vision::hsvFilter(cv::Mat *output, HSV_Ranges_t range){
+    cv::Mat tmp;
+    cv::cvtColor(rs2_frames.imgAlignedRGB, tmp, cv::COLOR_RGB2HSV);
+    //Threashold by HSV range
+    cv::Scalar lower = cv::Scalar(range.H.start, range.S.start, range.V.start);
+    cv::Scalar upper = cv::Scalar(range.H.end, range.S.end, range.V.end);
+    cv::inRange(tmp, lower, upper, *output);
 }
 
 /*!
