@@ -75,6 +75,8 @@ public:
     HSV_Ranges_t hsvRngsBD;
     QPointF posBD_m;
     QPoint posBD_pix;
+    QPointF posGreen_m;
+    QPoint posGreen_pix;
     double wall_depth;
     double grid_b_m;
     int grid_b_pix;

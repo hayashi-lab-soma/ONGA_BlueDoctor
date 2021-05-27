@@ -34,6 +34,9 @@ public:
     void setCameraParam(Camera_Params_t camParams);
 
 private:
+    void hsvFilter(cv::Mat *output, HSV_Ranges_t range);
+    void detection(cv::Mat *input, QPoint *point, QPointF *point_m, Compornent_t *max,
+                   Compornent_t *cmp, int lost_num);
     int DetectionBlueDoctor(cv::Mat *img, HSV_Ranges_t hsvRngs, double wall_depth,
                             QPointF &pos_m, QPoint &pos_pix);
     int Spoit(Data *data);
@@ -61,9 +64,11 @@ private:
     R200Data_t r200Data;
     RS2::Frames_t rs2_frames;
 
-    Compornent_t max_area_cmp;	//at "t"
-    Compornent_t lightpos;
+    Compornent_t max_area_cmp;
+    Compornent_t max_area_cmp_BD;	//at "t"
+    Compornent_t max_area_cmp_Green;
     Compornent_t cmpBD;					//buffer
+    Compornent_t cmpGreen;
 
     cv::Mat *imgBinGreen;
     cv::Mat *imgBinBD;
@@ -74,6 +79,7 @@ private:
 
     bool isTest;
     int lostBD_num = 0;
+    int lostGreen_num = 0;
     QString savepath_R;
     QString saveDis;
 

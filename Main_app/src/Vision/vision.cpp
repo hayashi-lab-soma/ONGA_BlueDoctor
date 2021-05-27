@@ -30,10 +30,14 @@ Vision::Vision(QObject *parent) : QObject(parent)
     cmpBD.size = QSize(0, 0);
     cmpBD.tl = QPoint(0, 0);
 
-    lightpos.area = -INFINITY;
-    lightpos.centroid = QPoint(0,0);
-    lightpos.size = QSize(0,0);
-    lightpos.tl = QPoint(0,0);
+    max_area_cmp_BD.centroid = QPoint(0,0);
+    max_area_cmp_BD.size = QSize(0,0);
+    max_area_cmp_BD.tl = QPoint(0,0);
+    max_area_cmp_BD.area = -INFINITY;
+
+    max_area_cmp_Green.centroid = QPoint(0,0);
+    max_area_cmp_Green.size = QSize(0,0);
+    max_area_cmp_Green.tl = QPoint(0,0);
 }
 
 int Vision::initialize()
@@ -123,153 +127,24 @@ void Vision::main(Data *data)
     this->disM = data->disM;
     this->disB = data->disB;
 
-    //------------------------------------------------------------------------------------------------------------------------
-    //Detection of Blue Doctor's position and rectangle
     hsvFilter(imgBinGreen, data->hsvRngsGreen);
     hsvFilter(imgBinBD, data->hsvRngsBD);
 
-    //Detection of light's position and rectangle
-    std::vector<std::vector<cv::Point> > contours;
-    std::vector<cv::Vec4i> hierarchy;
-    cv::Mat imgHSV_l,mask;
-    cv::cvtColor(rs2_frames.imgAlignedRGB, imgHSV_l, cv::COLOR_RGB2HSV, 3);
-    //Threashold by HSV range
-    cv::Scalar lower_l = cv::Scalar(49, 100, 33);
-    cv::Scalar upper_l = cv::Scalar(147, 255, 255);
-    cv::inRange(imgHSV_l, lower_l, upper_l, mask);
-    cv::imshow("hsv",imgHSV_l);
-    cv::imshow("mask",mask);
-
-    cv::findContours(mask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-
-    int largest_area = 0;
-    int largest_contours_index = -1;
-//    cv::Rect bounding_rect;
-    std::vector<cv::Rect> boundRect( contours.size() );
-    cv::Rect bounding_rect;
-    cv::Moments m;
-    cv::Mat centroid;
-    float x, y, wl, hl;
-//    std::vector<cv::RotatedRect> rectlight;
-//    cv::RotatedRect rect(cv::Point(256, 256), cv::Size(50, 200), 45);
-
-    for(size_t i=0; i<contours.size(); i++){
-        double area = cv::contourArea(contours[i]);
-        if (area > largest_area) {
-            largest_area = area;
-            largest_contours_index = i;
-
-            boundRect[i] = cv::boundingRect(contours[i]);
-            cv::rectangle(rs2_frames.imgAlignedRGB, boundRect[i].tl(), boundRect[i].br(),cv::Scalar( 255, 0, 0 ),2);
-            x = boundRect[i].x;
-            y = boundRect[i].y;
-            wl = boundRect[i].width;
-            hl = boundRect[i].height;
-            lightpos.size = QSize(wl,hl);
-
-            lightpos.centroid = QPoint(x+wl/2,y+hl/2);
-
-        }
-    }
-
-    if(largest_contours_index != -1){
-            m = cv::moments(contours[largest_contours_index]);
-            cv::Point2f mc = cv::Point2f(m.m10 / m.m00, m.m01 / m.m00);
-            float point[3] = {0.0};
-            d455->deproject(mc.x,mc.y,point);
-    //        std::cout <<"x="<< mc.x <<" y="<< mc.y << std::endl;
-//            std::cout <<"x="<< point[0] <<" y="<< point[1] <<" z="<< point[2] << std::endl;
-//            cv::drawContours(rs2_frames.imgAlignedRGB, contours, largest_contours_index, cv::Scalar( 0, 255, 0 ),2);
-            centroid = rs2_frames.imgAlignedRGB.clone();
-            cv::circle(centroid, mc, 4, cv::Scalar(255,0,0), 2, 4);
-//            cv::imshow("result", rs2_frames.imgAlignedRGB);
-    }else{
-        centroid = rs2_frames.imgAlignedRGB;
-    }
-    *imgResult = centroid.clone();
-
-    //labeling process on binary image
-    cv::Mat matLabels = cv::Mat();
-    cv::Mat stats = cv::Mat();
-    cv::Mat centroids = cv::Mat();
-    int numComponents = cv::connectedComponentsWithStats(*imgBinBD,
-                                                         matLabels,
-                                                         stats,
-                                                         centroids,
-                                                         8,
-                                                         CV_32S);
-    TRACE(QString("Num labels : %1").arg(numComponents));
-
-    //if number of compornents is one,
-    //it means that the component is background of the image.
-    //So, you should something to avoid error of the detection process
-    if(numComponents == 1){
-        max_area_cmp.area = -1.0;
-        max_area_cmp.centroid = QPoint(-1, -1);
-        //		cmpBD.area = -1.0;
-        //		cmpBD.centroid = QPoint(-1, -1);
-
-        lostBD_num++;
-
-        if(lostBD_num == 15){
-            emit lostError();
-            lostBD_num = 0;
-        }
-        goto NoWhite;
-    }else{
-        lostBD_num = 0;
-    }
+    detection(imgBinGreen,
+              &data->posGreen_pix,
+              &data->posGreen_m,
+              &max_area_cmp_Green,
+              &cmpGreen,
+              lostGreen_num);
+    detection(imgBinBD,
+              &data->posBD_pix,
+              &data->posBD_m,
+              &max_area_cmp_BD,
+              &cmpBD,
+              lostBD_num);
 
 
-    //if number of compornent is two or more,
-    //try to find maximum area compornent and the maximum compornent is set as the object
-    int max_area = -INFINITY;
-    int idx_max_area = -1;
-    for(int i = 1; i < numComponents; i++){
-        int *stat = stats.ptr<int>(i); //get stat of the (i)th compornent
-        int A = stat[cv::ConnectedComponentsTypes::CC_STAT_AREA]; //get area [pixel]
-
-        if(A > max_area){
-            max_area = A;
-            idx_max_area = i;
-        }
-    }
-    TRACE(QString("Max area compornent : %1 (%2)").arg(idx_max_area).arg(max_area));
-
-    int *stat = stats.ptr<int>(idx_max_area);
-    int A = stat[cv::ConnectedComponentsTypes::CC_STAT_AREA];
-    max_area_cmp.area = A;
-    int t = stat[cv::ConnectedComponentsTypes::CC_STAT_LEFT]; //top coordinate
-    int l = stat[cv::ConnectedComponentsTypes::CC_STAT_TOP];  //left coordinate
-    max_area_cmp.tl = QPoint(t, l);
-    int w = stat[cv::ConnectedComponentsTypes::CC_STAT_WIDTH];
-    int h = stat[cv::ConnectedComponentsTypes::CC_STAT_HEIGHT];
-    max_area_cmp.size = QSize(w, h);
-    int cx = (int)((centroids.ptr<double>(idx_max_area))[0]);
-    int cy = (int)((centroids.ptr<double>(idx_max_area))[1]);
-    max_area_cmp.centroid = QPoint(cx, cy);
-
-
-    //return Blue Doctor position (x[m], y[m])
-    if(max_area_cmp.area >= cmpBD.area){
-        //Store result
-        data->posBD_pix.setX(max_area_cmp.centroid.x()); //[pixel]
-        data->posBD_pix.setY(max_area_cmp.centroid.y()); //[pixel]
-        //convert to meter
-        int u = max_area_cmp.centroid.x();
-        int v = max_area_cmp.centroid.y();
-        float point[3] = {0.0};
-        d455->deproject(u,v,point);
-        //finally input meter
-        data->posBD_m.setX(point[0]); //meter
-        //data->posBD_m.setY(point[1]); //meter
-        data->posBD_m.setY(point[1]*-1);
-        cmpBD = max_area_cmp;
-    }
-
-    //------------------------------------------------------------------------------------------------------------------------
-
-NoWhite:
+//NoWhite:
 
     //Results drawing on RGB image
     DrawResults(data);
@@ -307,120 +182,89 @@ void Vision::hsvFilter(cv::Mat *output, HSV_Ranges_t range){
     cv::inRange(tmp, lower, upper, *output);
 }
 
-/*!
- * \brief Vision::DetectionGreenLED
- * \return
- */
-int Vision::DetectionBlueDoctor(cv::Mat *img,
-                                HSV_Ranges_t hsvRngs,
-                                double wall_depth,
-                                QPointF &pos_m,
-                                QPoint &pos_pix)
-{
-    //Image convert to HSV
-    cv::Mat imgHSV;
-    cv::cvtColor(*img, imgHSV, cv::COLOR_RGB2HSV);
-    //	cv::cvtColor(*img, imgHSV, CV_RGB2YUV);
-
-    //make mask image
-    cv::Scalar lower = cv::Scalar(hsvRngs.H.start, hsvRngs.S.start, hsvRngs.V.start);
-    cv::Scalar upper = cv::Scalar(hsvRngs.H.end, hsvRngs.S.end, hsvRngs.V.end);
-    cv::inRange(imgHSV, lower, upper, *imgBinBD);
-
-    //Additional processing
-    //	cv::medianBlur(*imgBinBD, *imgBinBD, 5);
-    //	cv::morphologyEx(*imgBinBD, *imgBinBD, CV_MOP_DILATE, cv::Mat(), cv::Point(-1, -1), 3);
-
-    //labeling (8-neighber)
+void Vision::detection(cv::Mat *input,
+                       QPoint *point,
+                       QPointF *point_m,
+                       Compornent_t *max,
+                       Compornent_t *cmp,
+                       int lost_num) {
+    //labeling process on binary image
     cv::Mat matLabels = cv::Mat();
     cv::Mat stats = cv::Mat();
     cv::Mat centroids = cv::Mat();
+    int numComponents = cv::connectedComponentsWithStats(*input,
+                                                         matLabels,
+                                                         stats,
+                                                         centroids,
+                                                         8,
+                                                         CV_32S);
+    TRACE(QString("Num labels : %1").arg(numComponents));
 
-    int numLabels = cv::connectedComponentsWithStats(*imgBinGreen,
-                                                     matLabels,
-                                                     stats,
-                                                     centroids,
-                                                     8,
-                                                     CV_32S);
-    //Cannot found Green LED
-    //If (numLabels == 1) then raw image size will returned
+    //if number of compornents is one,
+    //it means that the component is background of the image.
+    //So, you should something to avoid error of the detection process
+    if(numComponents == 1){
+        max->area = -1.0;
+        max->centroid = QPoint(-1, -1);
+        //		cmp.area = -1.0;
+        //		cmp.centroid = QPoint(-1, -1);
 
-    if(numLabels == 1){
-        /*
-        pos_pix = QPoint(); //pixel coordinate
-        pos_m = r200->deprojectRGB(pos_pix, wall_depth); //to Meter unit
-        pos_m.setY(-pos_m.y());
-        */
+        lost_num++;
 
-        //		pos_pix = QPoint(); //pixel coordinate
-        //		pos_m = r200->deprojectRGB(pos_pix, wall_depth); //to Meter unit
-        //pos_m.setX(0.0);
-        //pos_m.setY(0.0);
-
-        //pos_pix.setX(10000);
-        //pos_pix.setY(10000);
-        //pos_m.setX(10000.0);
-        //pos_m.setY(10000.0);
-
-        //reset compornent
-        max_area_cmp.area = -1.0;
-        max_area_cmp.centroid = QPoint(-1, -1);
-        //		cmpBD.area = -1.0;
-        //		cmpBD.centroid = QPoint(-1, -1);
-
-        lostBD_num++;
-        //qDebug() << "lost_num" << lostBD_num;
-
-        if(lostBD_num == 15){
+        if(lost_num == 15){
             emit lostError();
-            lostBD_num = 0;
+            lost_num = 0;
         }
-        //Flag off
-        return -1;
     }else{
-        lostBD_num = 0;
+        lost_num = 0;
     }
 
-    //find maximum area compornent
-    max_area_cmp.area = -INFINITY;
 
-    for(int i = 1; i < numLabels; i++){
-        int *stat = stats.ptr<int>(i);
-        int area = stat[cv::ConnectedComponentsTypes::CC_STAT_AREA];
+    //if number of compornent is two or more,
+    //try to find maximum area compornent and the maximum compornent is set as the object
+    int max_area = -INFINITY;
+    int idx_max_area = -1;
+    for(int i = 1; i < numComponents; i++){
+        int *stat = stats.ptr<int>(i); //get stat of the (i)th compornent
+        int A = stat[cv::ConnectedComponentsTypes::CC_STAT_AREA]; //get area [pixel]
 
-        if((double)area > max_area_cmp.area){
-
-            max_area_cmp.area = area;
-
-            int t = stat[cv::ConnectedComponentsTypes::CC_STAT_LEFT];
-            int l = stat[cv::ConnectedComponentsTypes::CC_STAT_TOP];
-            max_area_cmp.tl = QPoint(t, l);
-
-            int w = stat[cv::ConnectedComponentsTypes::CC_STAT_WIDTH];
-            int h = stat[cv::ConnectedComponentsTypes::CC_STAT_HEIGHT];
-            max_area_cmp.size = QSize(w, h);
-
-            int cx = (int)((centroids.ptr<double>(i))[0]);
-            int cy = (int)((centroids.ptr<double>(i))[1]);
-            max_area_cmp.centroid = QPoint(cx, cy);
-            //return ireru
-            qDebug() << "max_area_cmp.area" << max_area_cmp.area;
+        if(A > max_area){
+            max_area = A;
+            idx_max_area = i;
         }
     }
+    TRACE(QString("Max area compornent : %1 (%2)").arg(idx_max_area).arg(max_area));
+
+    int *stat = stats.ptr<int>(idx_max_area);
+    int A = stat[cv::ConnectedComponentsTypes::CC_STAT_AREA];
+    max->area = A;
+    int t = stat[cv::ConnectedComponentsTypes::CC_STAT_LEFT]; //top coordinate
+    int l = stat[cv::ConnectedComponentsTypes::CC_STAT_TOP];  //left coordinate
+    max->tl = QPoint(t, l);
+    int w = stat[cv::ConnectedComponentsTypes::CC_STAT_WIDTH];
+    int h = stat[cv::ConnectedComponentsTypes::CC_STAT_HEIGHT];
+    max->size = QSize(w, h);
+    int cx = (int)((centroids.ptr<double>(idx_max_area))[0]);
+    int cy = (int)((centroids.ptr<double>(idx_max_area))[1]);
+    max->centroid = QPoint(cx, cy);
 
 
-    //return Blue Doctor position (x[m], y[m])
-    //tominaga
-    if(max_area_cmp.area >= cmpBD.area){
+    //return Blue Doctor or Green position (x[m], y[m])
+    if(max->area >= cmp->area){
         //Store result
-        pos_pix = max_area_cmp.centroid;	//[pix]
-        //[meter]
-        pos_m = r200->deprojectRGB(pos_pix, wall_depth);
-        pos_m.setY(-pos_m.y());
-        cmpBD = max_area_cmp;
+        point->setX(max->centroid.x()); //[pixel]
+        point->setY(max->centroid.y()); //[pixel]
+        //convert to meter
+        int u = max->centroid.x();
+        int v = max->centroid.y();
+        float point[3] = {0.0};
+        d455->deproject(u,v,point);
+        //finally input meter
+        point_m->setX(point[0]); //meter
+        //data->posBD_m.setY(point[1]); //meter
+        point_m->setY(point[1]*-1);
+        cmp = max;
     }
-
-    return 0;
 }
 
 int Vision::Spoit(Data *data)
@@ -466,13 +310,22 @@ void Vision::DrawResults(Data *data)
     //--------------------------------------------------
     //Draw green compornent's rectangle
     if(data->isShowBDRect){
-        if(max_area_cmp.centroid != QPoint(-1, -1)){	//if found BD
+        if(max_area_cmp_BD.centroid != QPoint(-1, -1)){	//if found BD
             cv::rectangle(*imgResult,
-                          cv::Rect(max_area_cmp.tl.x(),
-                                   max_area_cmp.tl.y(),
-                                   max_area_cmp.size.width(),
-                                   max_area_cmp.size.height()),
+                          cv::Rect(max_area_cmp_BD.tl.x(),
+                                   max_area_cmp_BD.tl.y(),
+                                   max_area_cmp_BD.size.width(),
+                                   max_area_cmp_BD.size.height()),
                           cv::Scalar(0, 255, 0),
+                          5);
+        }
+        if(max_area_cmp_Green.centroid != QPoint(-1, -1)){	//if found Green
+            cv::rectangle(*imgResult,
+                          cv::Rect(max_area_cmp_Green.tl.x(),
+                                   max_area_cmp_Green.tl.y(),
+                                   max_area_cmp_Green.size.width(),
+                                   max_area_cmp_Green.size.height()),
+                          cv::Scalar(255, 0, 0),
                           5);
         }
     }
