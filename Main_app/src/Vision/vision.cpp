@@ -175,11 +175,13 @@ void Vision::setAutoColorExposure()
 
 void Vision::hsvFilter(cv::Mat *output, HSV_Ranges_t range){
     cv::Mat tmp;
+    cv::Mat inR_output;
     cv::cvtColor(rs2_frames.imgAlignedRGB, tmp, cv::COLOR_RGB2HSV);
     //Threashold by HSV range
     cv::Scalar lower = cv::Scalar(range.H.start, range.S.start, range.V.start);
     cv::Scalar upper = cv::Scalar(range.H.end, range.S.end, range.V.end);
-    cv::inRange(tmp, lower, upper, *output);
+    cv::inRange(tmp, lower, upper, inR_output);
+    cv::morphologyEx(inR_output, *output, cv::MORPH_OPEN, cv::Mat(), cv::Point(-1, -1), 2); //removing noise(erosion followed by dilation)
 }
 
 void Vision::detection(cv::Mat *input,
