@@ -181,7 +181,7 @@ void Vision::hsvFilter(cv::Mat *output, HSV_Ranges_t range){
     cv::Scalar lower = cv::Scalar(range.H.start, range.S.start, range.V.start);
     cv::Scalar upper = cv::Scalar(range.H.end, range.S.end, range.V.end);
     cv::inRange(tmp, lower, upper, inR_output);
-    cv::morphologyEx(inR_output, *output, cv::MORPH_OPEN, cv::Mat(), cv::Point(-1, -1), 2); //removing noise(erosion followed by dilation)
+    cv::morphologyEx(inR_output, *output, cv::MORPH_OPEN, cv::Mat(), cv::Point(-1, -1), 2); //removing noise(erosion followed by dilation) arg(cv::Mat()) = kernel = 3×3
 }
 
 void Vision::detection(cv::Mat *input,
@@ -252,21 +252,21 @@ void Vision::detection(cv::Mat *input,
 
 
     //return Blue Doctor or Green position (x[m], y[m])
-    if(max->area >= cmp->area){
-        //Store result
-        point->setX(max->centroid.x()); //[pixel]
-        point->setY(max->centroid.y()); //[pixel]
-        //convert to meter
-        int u = max->centroid.x();
-        int v = max->centroid.y();
-        float point[3] = {0.0};
-        d455->deproject(u,v,point);
-        //finally input meter
-        point_m->setX(point[0]); //meter
-        //data->posBD_m.setY(point[1]); //meter
-        point_m->setY(point[1]*-1);
-        cmp = max;
-    }
+//    if(max->area >= cmp->area){
+//        //Store result
+//        point->setX(max->centroid.x()); //[pixel]
+//        point->setY(max->centroid.y()); //[pixel]
+//        //convert to meter
+//        int u = max->centroid.x();
+//        int v = max->centroid.y();
+//        float point[3] = {0.0};
+//        d455->deproject(u,v,point);
+//        //finally input meter
+//        point_m->setX(point[0]); //meter
+//        //data->posBD_m.setY(point[1]); //meter
+//        point_m->setY(point[1]*-1);
+//        cmp = max;
+//    }
 }
 
 int Vision::Spoit(Data *data)
@@ -330,7 +330,6 @@ void Vision::DrawResults(Data *data)
                           cv::Scalar(255, 0, 0),
                           5);
         }
-
         cv::RotatedRect rectBD(cv::Point(max_area_cmp_BD.centroid.x(),max_area_cmp_BD.centroid.y()),
                                cv::Size(max_area_cmp_BD.size.width(),max_area_cmp_BD.size.height()), 0);
         cv::RotatedRect rectlight(cv::Point(max_area_cmp_Green.centroid.x(),max_area_cmp_Green.centroid.y()),
@@ -338,11 +337,25 @@ void Vision::DrawResults(Data *data)
 
         std::vector<cv::Point2f> vertices;
         int status = cv::rotatedRectangleIntersection(rectBD,rectlight,vertices);
-        if(status>0){
-            std::cout << "x" << max_area_cmp_BD.centroid.x() << std::endl;
+        std::cout << "status" << status << std::endl;
+        if(status>0&&max_area_cmp_BD.centroid != QPoint(0, 0)){
+            std::cout << "x,y=" << max_area_cmp_BD.centroid.x() << "," << max_area_cmp_BD.centroid.y() << std::endl;
             DrawPointSet(*imgResult, std::vector<cv::Point>(vertices.begin(), vertices.end()), 5, cv::Scalar(0, 0, 255),-1,cv::LINE_AA);
             cv::circle(*imgResult, cv::Point(max_area_cmp_BD.centroid.x(),max_area_cmp_BD.centroid.y()), 4, cv::Scalar(255,0,0), 2, 4);
 
+            //return Blue Doctor position (x[m], y[m])
+            data->posBD_pix.setX(max_area_cmp_BD.centroid.x()); //[pixel]
+            data->posBD_pix.setY(max_area_cmp_BD.centroid.y()); //[pixel]
+            //convert to meter
+            int u = max_area_cmp_BD.centroid.x();
+            int v = max_area_cmp_BD.centroid.y();
+            float point[3] = {0.0};
+            d455->deproject(u,v,point);
+            //finally input meter
+            data->posBD_m.setX(point[0]); //meter
+            //data->posBD_m.setY(point[1]); //meter
+            data->posBD_m.setY(point[1]*-1);
+            cmpBD = max_area_cmp_BD;
         }
     }
 

@@ -47,7 +47,7 @@ void HSVRangeController::initialize(Data *data, int type)
 	this->data = data;
 	data->hsvRngsGreen.H = cv::Range(cfg->getInteger("VISION", "H_MIN_GREEN"), cfg->getInteger("VISION", "H_MAX_GREEN"));
 	data->hsvRngsGreen.S = cv::Range(cfg->getInteger("VISION", "S_MIN_GREEN"), cfg->getInteger("VISION", "S_MAX_GREEN"));
-	data->hsvRngsGreen.V = cv::Range(cfg->getInteger("VISION", "V_MIN_GREEN"), cfg->getInteger("VISION", "V_MAX_GREEN"));
+    data->hsvRngsGreen.V = cv::Range(cfg->getInteger("VISION", "V_MIN_GREEN"), cfg->getInteger("VISION", "V_MAX_GREEN"));
 }
 
 void HSVRangeController::changedHRange(int min, int max)
