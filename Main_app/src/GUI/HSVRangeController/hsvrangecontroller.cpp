@@ -24,9 +24,9 @@ HSVRangeController::HSVRangeController(QWidget *parent) :
 	S->setRange(0, 255);
 	V->setRange(0, 255);
 
-	H->setValues(cfg->getInteger("VISION", "H_MIN_GREEN"), cfg->getInteger("VISION", "H_MAX_GREEN"));
-	S->setValues(cfg->getInteger("VISION", "S_MIN_GREEN"), cfg->getInteger("VISION", "S_MAX_GREEN"));
-	V->setValues(cfg->getInteger("VISION", "V_MIN_GREEN"), cfg->getInteger("VISION", "V_MAX_GREEN"));
+//	H->setValues(cfg->getInteger("VISION", "H_MIN_GREEN"), cfg->getInteger("VISION", "H_MAX_GREEN"));
+//	S->setValues(cfg->getInteger("VISION", "S_MIN_GREEN"), cfg->getInteger("VISION", "S_MAX_GREEN"));
+//	V->setValues(cfg->getInteger("VISION", "V_MIN_GREEN"), cfg->getInteger("VISION", "V_MAX_GREEN"));
 
 	ui->verticalLayout->addWidget(H);
 	ui->verticalLayout->addWidget(S);
@@ -47,12 +47,18 @@ void HSVRangeController::initialize(Data *data, int type)
 	this->data = data;
 
     if(this->type==0){
+        H->setValues(cfg->getInteger("VISION", "H_MIN_GREEN"), cfg->getInteger("VISION", "H_MAX_GREEN"));
+        S->setValues(cfg->getInteger("VISION", "S_MIN_GREEN"), cfg->getInteger("VISION", "S_MAX_GREEN"));
+        V->setValues(cfg->getInteger("VISION", "V_MIN_GREEN"), cfg->getInteger("VISION", "V_MAX_GREEN"));
         data->hsvRngsGreen.H = cv::Range(cfg->getInteger("VISION", "H_MIN_GREEN"), cfg->getInteger("VISION", "H_MAX_GREEN"));
         data->hsvRngsGreen.S = cv::Range(cfg->getInteger("VISION", "S_MIN_GREEN"), cfg->getInteger("VISION", "S_MAX_GREEN"));
         data->hsvRngsGreen.V = cv::Range(cfg->getInteger("VISION", "V_MIN_GREEN"), cfg->getInteger("VISION", "V_MAX_GREEN"));
     }
 
     if(this->type==1){
+        H->setValues(cfg->getInteger("VISION", "H_MIN_BD"), cfg->getInteger("VISION", "H_MAX_BD"));
+        S->setValues(cfg->getInteger("VISION", "S_MIN_BD"), cfg->getInteger("VISION", "S_MAX_BD"));
+        V->setValues(cfg->getInteger("VISION", "V_MIN_BD"), cfg->getInteger("VISION", "V_MAX_BD"));
         data->hsvRngsBD.H = cv::Range(cfg->getInteger("VISION", "H_MIN_GREEN"), cfg->getInteger("VISION", "H_MAX_GREEN"));
         data->hsvRngsBD.S = cv::Range(cfg->getInteger("VISION", "S_MIN_GREEN"), cfg->getInteger("VISION", "S_MAX_GREEN"));
         data->hsvRngsBD.V = cv::Range(cfg->getInteger("VISION", "V_MIN_GREEN"), cfg->getInteger("VISION", "V_MAX_GREEN"));
