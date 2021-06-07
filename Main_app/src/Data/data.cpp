@@ -18,6 +18,13 @@ Data::Data()
     hsvRngsGreen.V.start = cfg->getInteger("VISION", "V_MIN_GREEN");
     hsvRngsGreen.V.end = cfg->getInteger("VISION", "V_MAX_GREEN");
 
+    hsvRngsBD.H.start = cfg->getInteger("VISION", "H_MIN_GREEN");
+    hsvRngsBD.H.end = cfg->getInteger("VISION", "H_MAX_GREEN");
+    hsvRngsBD.S.start = cfg->getInteger("VISION", "S_MIN_GREEN");
+    hsvRngsBD.S.end = cfg->getInteger("VISION", "S_MAX_GREEN");
+    hsvRngsBD.V.start = cfg->getInteger("VISION", "V_MIN_GREEN");
+    hsvRngsBD.V.end = cfg->getInteger("VISION", "V_MAX_GREEN");
+
     posBD_m = QPointF(0.0, 0.0);
     posBD_pix = QPoint(0, 0);
 
@@ -90,4 +97,11 @@ void Data::restoreConfig()
     cfg->setInteger("VISION", "S_MAX_GREEN", hsvRngsGreen.S.end);
     cfg->setInteger("VISION", "V_MIN_GREEN", hsvRngsGreen.V.start);
     cfg->setInteger("VISION", "V_MAX_GREEN", hsvRngsGreen.V.end);
+
+    cfg->setInteger("VISION", "H_MIN_GREEN", hsvRngsBD.H.start);
+    cfg->setInteger("VISION", "H_MAX_GREEN", hsvRngsBD.H.end);
+    cfg->setInteger("VISION", "S_MIN_GREEN", hsvRngsBD.S.start);
+    cfg->setInteger("VISION", "S_MAX_GREEN", hsvRngsBD.S.end);
+    cfg->setInteger("VISION", "V_MIN_GREEN", hsvRngsBD.V.start);
+    cfg->setInteger("VISION", "V_MAX_GREEN", hsvRngsBD.V.end);
 }
