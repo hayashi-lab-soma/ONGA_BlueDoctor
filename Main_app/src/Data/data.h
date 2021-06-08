@@ -102,9 +102,12 @@ public:
     int divN;
     int countMax;
     double dis[100];
-    QString disT;//top
-    QString disM;//middle
-    QString disB;//bottom
+//    QString disT;//top
+//    QString disM;//middle
+//    QString disB;//bottom
+    double angle;
+    int topL,bottomL;
+    double range_x,range_y;
 
     //flags
     bool isCamParamChange;
