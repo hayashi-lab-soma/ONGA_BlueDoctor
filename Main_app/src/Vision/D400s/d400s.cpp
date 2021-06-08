@@ -22,8 +22,8 @@ int D400s::init()
 
         //enable streams
         rsCfg->disable_all_streams();
-        rsCfg->enable_stream(RS2_STREAM_COLOR, 848, 480, rs2_format::RS2_FORMAT_RGB8, 30);
-        rsCfg->enable_stream(RS2_STREAM_DEPTH, 848, 480, rs2_format::RS2_FORMAT_Z16, 30);
+        rsCfg->enable_stream(RS2_STREAM_COLOR,848, 480, rs2_format::RS2_FORMAT_RGB8, 30);
+        rsCfg->enable_stream(RS2_STREAM_DEPTH,848,480, rs2_format::RS2_FORMAT_Z16, 30);
 
         //start device
         rs2::pipeline_profile profile = rsPipe->start(*rsCfg);
@@ -116,5 +116,41 @@ int D400s::deproject(int u, int v, float point[])
     }
 
     return 0;
+}
+
+//kawachi
+QRectF D400s::getFOV(double depth)
+{
+        QRectF fov;
+        if(!isUse){
+                fov = QRectF(-2.5, -2.0, 5.0, 4.0);
+                return fov;
+        }
+
+        int height = video_frame->get_height();
+        int width = video_frame->get_width();
+
+
+        float xyz_bl[3] = {0.0};
+        float uv_bl[2] = {0, (float)height};
+        //rsIntrRGB.rs_intrinsics::model = (rs_distortion)rs::distortion::inverse_brown_conrady;
+
+        rs2_deproject_pixel_to_point(xyz_bl, &intr_RGB, uv_bl, (float)depth);
+
+        QPointF bl = QPointF(xyz_bl[0], xyz_bl[1]);
+
+
+        float xyz_tr[3] = {0.0};
+        float uv_tr[2] = {(float)width, 0};
+        //rsIntrRGB.rs_intrinsics::model = (rs_distortion)rs::distortion::inverse_brown_conrady;
+
+        rs2_deproject_pixel_to_point(xyz_tr, &intr_RGB, uv_tr, (float)depth);
+
+        QPointF tr = QPointF(xyz_tr[0], xyz_tr[1]);
+
+
+        fov.setBottomLeft(bl);
+        fov.setTopRight(tr);
+        return fov;
 }
 
