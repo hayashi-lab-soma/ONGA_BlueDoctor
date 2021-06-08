@@ -9,6 +9,10 @@
 #include "../../Data/data.h"
 #include "../../3rdParty/qcustomplot/qcustomplot.h"
 
+//kinoshita
+#include <opencv2/opencv.hpp>
+#include "./Data/data.h"
+
 namespace Ui {
 class PlaneViewer;
 }
@@ -40,6 +44,12 @@ private:
     QCPGraph *qcpgRed;
 
     QMap<int, QCPGraph*> qcpgsBD;
+
+    //kinoshita_hoseihyouji
+public slots:
+//    void setBack(cv::Mat *img);
+    void setBack(cv::Mat img);
+    void scale(double x,double y);
 };
 
 #endif // PLANEVIEWER_H

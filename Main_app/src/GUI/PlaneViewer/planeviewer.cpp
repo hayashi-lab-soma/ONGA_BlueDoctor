@@ -2,6 +2,8 @@
 #include "planeviewer.h"
 #include "ui_planeviewer.h"
 
+#include <qdebug.h>
+
 PlaneViewer::PlaneViewer(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::PlaneViewer)
@@ -23,13 +25,13 @@ PlaneViewer::PlaneViewer(QWidget *parent) :
 	//add
 	ui->qcp->xAxis->grid()->setSubGridPen(QPen(QColor(Qt::black)));
 	ui->qcp->yAxis->grid()->setSubGridPen(QPen(QColor(Qt::black)));
-	ui->qcp->xAxis->grid()->setSubGridVisible(true);
+    ui->qcp->xAxis->grid()->setSubGridVisible(true);
 	ui->qcp->yAxis->grid()->setSubGridVisible(true);
 
 	ui->qcp->xAxis->setRange(-2.5, 2.5);	//default
 	ui->qcp->yAxis->setRange(-2.0, 2.0);	//default
 
-	ui->qcp->xAxis2->setVisible(true);
+    ui->qcp->xAxis2->setVisible(true);
 	ui->qcp->yAxis2->setVisible(true);
 	ui->qcp->xAxis2->setTickLabels(false);
 	ui->qcp->yAxis2->setTickLabels(false);
@@ -116,4 +118,47 @@ void PlaneViewer::on_sldPntSz_valueChanged(int value)
 void PlaneViewer::saveMap(QString savepath)
 {
 	ui->qcp->saveJpg(savepath + "/map" + ".jpg",1920,1080,1.0,-1);
+}
+
+//kinoshita_hoseihyoji
+//void PlaneViewer::setBack(cv::Mat *img)
+void PlaneViewer::setBack(cv::Mat img)
+{
+    //only background
+//    cv::Mat mat = *img;
+//    QPixmap qpixmap;
+//    qpixmap = QPixmap::fromImage(QImage((unsigned char*) mat.data, mat.cols, mat.rows, static_cast<int>(mat.step), QImage::Format_RGB888));
+//    ui->qcp->axisRect()->setBackground(qpixmap);
+    //---------------
+
+    cv::Mat mat = img;
+    QPixmap qpixmap = QPixmap::fromImage(QImage((unsigned char*) mat.data, mat.cols, mat.rows, static_cast<int>(mat.step), QImage::Format_RGB888));
+    ui->qcp->axisRect()->setBackground(qpixmap);
+    ui->qcp->axisRect()->setBackgroundScaledMode(Qt::IgnoreAspectRatio);
+}
+
+void PlaneViewer::scale(double x,double y)
+{
+    ui->qcp->xAxis->setRange(-x, x);
+    ui->qcp->yAxis->setRange(-y, y);
+
+    ui->qcp->xAxis->ticker()->setTickCount(5);
+    ui->qcp->yAxis->ticker()->setTickCount(3);
+
+//    QSharedPointer<QCPAxisTickerFixed> fixedTicker_x(new QCPAxisTickerFixed);
+//    ui->qcp->xAxis->setTicker(fixedTicker_x);
+//    fixedTicker_x->setTickStep(0.05);
+//    fixedTicker_x->setTickCount(3);
+//    fixedTicker_x->setScaleStrategy(QCPAxisTickerFixed::ssMultiples);
+
+//    fixedTicker_x->setTickStepStrategy(QCPAxisTicker::tssReadability);
+//    fixedTicker_x->setTickStepStrategy(QCPAxisTicker::tssMeetTickCount);
+//    fixedTicker_x->setScaleStrategy(QCPAxisTickerFixed::ssMultiples);
+//    fixedTicker_x->setScaleStrategy(QCPAxisTickerFixed::ssNone);
+
+//    QSharedPointer<QCPAxisTickerFixed> fixedTicker_y(new QCPAxisTickerFixed);
+//    ui->qcp->yAxis->setTicker(fixedTicker_y);
+//    fixedTicker_y->setTickStep(0.2);
+
+//    ui->qcp->replot();
 }
