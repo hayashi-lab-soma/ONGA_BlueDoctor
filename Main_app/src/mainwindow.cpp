@@ -55,7 +55,7 @@ void MainWindow::setup()
     imgVwrBD = new ImageViewer("BlueDoctor HSV", this);
     plnVwr = new PlaneViewer(this);
 
-    //    spoit = new Spoit_ImageViewer("Spoit", this);
+    spoit = new Spoit_ImageViewer("Spoit", this);
     hsvRngCont = new HSVRangeController(this);
     bdRngCont = new HSVRangeController(this);
     camParamCont = new CameraParameterContoller(this);
@@ -64,9 +64,9 @@ void MainWindow::setup()
 
     //initialize widgets
 
-    //    spoit->initialize();
-    //    spoit->setWindowFlags(Qt::Window);
-    //    spoit->close();
+    spoit->initialize();
+    spoit->setWindowFlags(Qt::Window);
+    spoit->close();
 
     imgVwrRGB->initialize(CV_8UC3, QImage::Format_RGB888);
     imgVwrBin->initialize(CV_8UC1, QImage::Format_Grayscale8);
@@ -101,6 +101,13 @@ void MainWindow::setup()
     connect(vision, SIGNAL(updatedRGB(cv::Mat*)), imgVwrRGB, SLOT(setImage(cv::Mat*)));
     connect(vision, SIGNAL(updatedImgGreen(cv::Mat*)), imgVwrBin, SLOT(setImage(cv::Mat*)));
     connect(vision, SIGNAL(updatedImgBD(cv::Mat*)), imgVwrBD, SLOT(setImage(cv::Mat*)));
+
+    //kinoshita_hoseihyoji
+//    connect(vision, SIGNAL(sendImg(cv::Mat*)), plnVwr , SLOT(setBack(cv::Mat*)));
+    //kinoshita_hosei2
+    connect(vision, SIGNAL(sendImg(cv::Mat)), plnVwr , SLOT(setBack(cv::Mat)));
+    connect(this,SIGNAL(revision()),vision,SLOT(getImg()));
+    connect(this,SIGNAL(changeScale(double,double)),plnVwr,SLOT(scale(double,double)));
 
     /***
      * Action trigger slots
@@ -158,6 +165,8 @@ void MainWindow::setup()
     //button_process kawachi2020/10/21
     //    connect(mainCont,SIGNAL(btnStop_to_false()),bdRcvr,SLOT(btn_Stop_Controll()));
     //    connect(bdRcvr,SIGNAL(btnRefresh_to_false()),mainCont,SLOT(btn_Refresh_Controll()));
+
+    connect(this,SIGNAL(showdistance(double)),bdrcvr,SLOT(ShowDepth(double)));
 
     connect(this, &MainWindow::updateTime, this,
             [=](){
@@ -281,12 +290,12 @@ void MainWindow::on_actSpoit_triggered()
     //spoit���ʂ̃T�C�Y�w��
     QDesktopWidget dw;
     QRect mainScreen = dw.availableGeometry(dw.primaryScreen());
-    //    spoit->resize(mainScreen.width()*0.5,mainScreen.height());
-    //    spoit->move(mainScreen.width()*0.5,0);
-    //    spoit->show();
+    spoit->resize(mainScreen.width()*0.5,mainScreen.height());
+    spoit->move(mainScreen.width()*0.5,0);
+    spoit->show();
 
-    //    connect(vision, SIGNAL(updatedRGB(cv::Mat*)), spoit, SLOT(setImage(cv::Mat*)));
-    //    connect(spoit, SIGNAL(fuzzySelected(cv::Range,cv::Range,cv::Range)), this, SLOT(setHSVRanges(cv::Range,cv::Range,cv::Range)));
+    connect(vision, SIGNAL(updatedRGB(cv::Mat*)), spoit, SLOT(setImage(cv::Mat*)));
+    connect(spoit, SIGNAL(fuzzySelected(cv::Range,cv::Range,cv::Range)), this, SLOT(setHSVRanges(cv::Range,cv::Range,cv::Range)));
 }
 
 void MainWindow::setHSVRanges(cv::Range h, cv::Range s, cv::Range v)
@@ -327,7 +336,7 @@ void MainWindow::on_actOpenDepthCSV_triggered()
     //    qDebug() << "FileName" << csvName;
     //    qInfo() << "result";
 
-    double disT,disM,disB;
+    double disT,disM,disB;//top,middle,bottom
     int T,T1,T2,M,M1,M2,M3,M4,B,B1,B2;
 
     if((data->divN % 2) == 0){//even(guusuu)
@@ -342,6 +351,7 @@ void MainWindow::on_actOpenDepthCSV_triggered()
         disT = (data->dis[T1]+data->dis[T2])/2;
         disM = (data->dis[M1]+data->dis[M2]+data->dis[M3]+data->dis[M4])/4;
         disB = (data->dis[B1]+data->dis[B2])/2;
+        data->wall_depth =disM;
     }else{//odd(kisuu)
         T = (data->divN-1)/2;
         M = (pow(data->divN,2)-1)/2;
@@ -349,15 +359,45 @@ void MainWindow::on_actOpenDepthCSV_triggered()
         disT = data->dis[T];
         disM = data->dis[M];
         disB = data->dis[B];
+        data->wall_depth =disM;
     }
 
-    data->disT = QString::number(disT);
-    data->disM = QString::number(disM);
-    data->disB = QString::number(disB);
+//    data->disT = QString::number(disT);
+//    data->disM = QString::number(disM);
+//    data->disB = QString::number(disB);
+
+    emit showdistance(data->wall_depth);
+
+    //kinoshita_hosei2
+    double degree=M_PI/180;
+//    double calAngle = atan((((disM/cos(21.5*degree))-disB)*cos(21.5*degree))/(disB*sin(21.5*degree)))/degree;
+//    double top=2*tan(35*degree)*((disT-(disM/cos(21.5*degree)))*cos(21.5*degree)+disM);
+//    double bottom=2*tan(35*degree)*(disM-(disM/cos(21.5*degree)-disB)*cos(21.5*degree));
+//    double middle = 2*tan(35*degree)*disM;
+    double calAngle = atan((((disM/cos(28.5*degree))-disB)*cos(28.5*degree))/(disB*sin(28.5*degree)))/degree;
+    double top=2*tan(43*degree)*((disT-(disM/cos(28.5*degree)))*cos(28.5*degree)+disM);
+    double bottom=2*tan(43*degree)*(disM-(disM/cos(28.5*degree)-disB)*cos(28.5*degree));
+    double middle = 2*tan(43*degree)*disM;
+    int topL=848*top/middle;
+    int bottomL=848*bottom/middle;
+    data->topL = topL;
+    data->bottomL = bottomL;
+    data->range_x = top/2;
+    if(calAngle<28.5){
+        data->range_y = (disT*sin((28.5+calAngle)*degree)+disB*sin((28.5-calAngle)*degree))/2;
+    }else{
+        data->range_y = (disT*sin((28.5+calAngle)*degree)-disB*sin((calAngle-28.5)*degree))/2;
+    }
+
+    data->wall_depth = disM*cos(calAngle*degree);
+//    qDebug() << "data->range_x:" << data->range_x;
 
     QMessageBox::information(this,
                              "CSV file open success",
                              file.fileName());
+
+    emit revision();
+    emit changeScale(data->range_x,data->range_y);
 }
 
 

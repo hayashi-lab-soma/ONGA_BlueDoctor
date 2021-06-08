@@ -23,7 +23,7 @@
 
 #include "./GUI/HSVRangeController/hsvrangecontroller.h"
 #include "./GUI/CameraParameterController/cameraparametercontoller.h"
-//#include "./GUI/Spoit_ImageViewer/spoit_imageviewer.h"
+#include "./GUI/Spoit_ImageViewer/spoit_imageviewer.h"
 
 #include "./Config/config.h"
 #include "./Data/data.h"
@@ -64,6 +64,12 @@ signals:
     void updateData(Data *data);
     void actAlarm_num(int);
 
+    void showdistance(double);
+
+    //kinoshita_hosei2
+    void revision();
+    void changeScale(double,double);
+
 private:
     Ui::MainWindow *ui;
     QThread *thMain;
@@ -80,7 +86,7 @@ private:
     ImageViewer *imgVwrBD;
     PlaneViewer *plnVwr;
 
-    //    Spoit_ImageViewer *spoit;
+    Spoit_ImageViewer *spoit;
     HSVRangeController *hsvRngCont;
     HSVRangeController *bdRngCont;
     CameraParameterContoller *camParamCont;
