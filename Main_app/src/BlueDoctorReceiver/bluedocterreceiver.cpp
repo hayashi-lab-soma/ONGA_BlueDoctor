@@ -583,7 +583,7 @@ int BlueDocterReceiver::WriteStopCommand()
 void BlueDocterReceiver::on_btnStart_clicked()
 {
     //kinoshita
-    if(data->disT == NULL){//if donot open csv file
+    if(data->divN == NULL){//if donot open csv file
         QMessageBox::information(this,
                                  "Caution",
                                  "please open CSV file of depth");
@@ -880,8 +880,8 @@ bool BlueDocterReceiver::BD_Point_Jump_Blocker(QPointF data)
     Old_Data = New_Data;
     New_Data = data;
 
-    qDebug() << "New Data" << New_Data;
-    qDebug() << "Old Data" << Old_Data;
+//    qDebug() << "New Data" << New_Data;
+//    qDebug() << "Old Data" << Old_Data;
 
     //compare 2 data
     float Jump_Dist = sqrt(pow((New_Data.x()-Old_Data.x()),2)+pow((New_Data.y()-Old_Data.y()),2));
@@ -891,4 +891,10 @@ bool BlueDocterReceiver::BD_Point_Jump_Blocker(QPointF data)
         return false;
     }
     return true;
+}
+
+void BlueDocterReceiver::ShowDepth(double Dist){
+
+     ui->depth_label->setText(QString::number(Dist));
+
 }

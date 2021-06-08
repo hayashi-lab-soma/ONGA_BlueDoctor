@@ -50,11 +50,19 @@ signals:
     void updatedImgGreen(cv::Mat *img);
     void lostError();
 
+    //kinoshita_hoseihyoji
+//    void sendImg(cv::Mat*);
+    //kinoshita_hoseihyoji2
+    void sendImg(cv::Mat);
+
 public slots:
     void saveimage(QString);
     void saveimage_result();
     void setAutoColorExposure();
     //void area_Clear();
+
+    //kinoshita_hosei2
+    void getImg();
 
 private:
     R200 *r200;
@@ -83,6 +91,12 @@ private:
     QString saveDis;
 
     QString disT,disM,disB;
+
+    //kinoshita_hoseihyoji
+//    QString top,middle,topL,bottomL;
+    double top,middle,range_y;
+    int topL,bottomL;
+//    int first = 0;
 
 private slots:
     void area_Clear();

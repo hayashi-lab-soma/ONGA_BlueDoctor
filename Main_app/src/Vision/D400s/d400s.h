@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QString>
+#include <QRectF>
 
 #include <librealsense2/rs.hpp>
 #include <librealsense2/rs.h>
@@ -48,6 +49,8 @@ public:
     int getFrames(RS2::Frames_t &frames);
 
     int deproject(int u, int v, float point[]);
+
+    QRectF getFOV(double depth);
 private:
     bool isTest;
     rs2::pipeline *rsPipe;
@@ -57,7 +60,9 @@ private:
     rs2::video_frame *video_frame;
     rs2::depth_frame *depth_frame;
     rs2::align *align_to_depth, *align_to_color;
+    rs2_intrinsics intr_RGB;
     rs2_intrinsics intr_depth;
+    bool isUse;
 };
 
 #endif // D400S_H

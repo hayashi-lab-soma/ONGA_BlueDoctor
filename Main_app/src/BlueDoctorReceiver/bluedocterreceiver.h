@@ -117,6 +117,7 @@ private slots:
     void on_angle_valueChanged(double arg1);
 
     void btn_Stop_Controll();
+    void ShowDepth(double);
 
 
 

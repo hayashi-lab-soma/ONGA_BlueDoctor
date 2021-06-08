@@ -105,6 +105,9 @@ public:
     QString disT;//top
     QString disM;//middle
     QString disB;//bottom
+    double angle;
+    int topL,bottomL;
+    double range_x,range_y;
 
     //flags
     bool isCamParamChange;

@@ -1,4 +1,5 @@
 #include "vision.h"
+#include <qdebug.h>
 
 #define IS_TRACE 0
 #if IS_TRACE==1
@@ -127,6 +128,13 @@ void Vision::main(Data *data)
     this->disM = data->disM;
     this->disB = data->disB;
 
+    if(data->isSpoit){
+        Spoit(data);
+    }
+    this->topL = data->topL;
+    this->bottomL = data->bottomL;
+    this->range_y = data->range_y;
+
     hsvFilter(imgBinGreen, data->hsvRngsGreen);
     hsvFilter(imgBinBD, data->hsvRngsBD);
 
@@ -171,6 +179,23 @@ void Vision::setCameraParam(Camera_Params_t camParams)
 void Vision::setAutoColorExposure()
 {
     r200->setAutoColorExposure();
+}
+
+void Vision::getImg()
+{
+    cv::Mat originalImg = *imgResult;
+    cv::Point2f src_pt[] = {cv::Point2f(0,0), cv::Point2f(848,0),
+                            cv::Point2f(0,480), cv::Point2f(848,480)};
+    cv::Point2f revision_pt[] = {cv::Point2f(0,0), cv::Point2f(topL,0),
+                                 cv::Point2f(topL/2-bottomL/2,480), cv::Point2f(topL/2+bottomL/2,480)};
+
+    const cv::Mat homography_matrix = cv::getPerspectiveTransform(src_pt,revision_pt);
+    cv::Mat revisionImg = cv::Mat(cv::Size(topL,480),CV_8UC3);
+    //    cv::warpPerspective(originalImg, revisionImg, homography_matrix, revisionImg.size());
+    cv::warpPerspective(originalImg, revisionImg, homography_matrix, revisionImg.size(),cv::INTER_LINEAR,CV_HAL_BORDER_CONSTANT,cv::Scalar(255,255,255));
+
+    emit sendImg(revisionImg);
+    //        qDebug() << " : " << ;
 }
 
 void Vision::hsvFilter(cv::Mat *output, HSV_Ranges_t range){
@@ -271,25 +296,25 @@ void Vision::detection(cv::Mat *input,
 
 int Vision::Spoit(Data *data)
 {
-    if(!isWndSpoit){
-        cv::namedWindow("Spoit");
-        cv::namedWindow("Binaly");
-        //mouse click call back
-        isWndSpoit = true;
-        return 0;
-    }
+//    if(!isWndSpoit){
+//        cv::namedWindow("Spoit");
+//        cv::namedWindow("Binaly");
+//        //mouse click call back
+//        isWndSpoit = true;
+//        return 0;
+//    }
 
-    cv::Mat _rgb = r200Data.imgRGB->clone();
-    cv::Mat rgb;
-    cv::resize(_rgb, rgb, cv::Size(), 0.5, 0.5);
+//    cv::Mat _rgb = r200Data.imgRGB->clone();
+//    cv::Mat rgb;
+//    cv::resize(_rgb, rgb, cv::Size(), 0.5, 0.5);
 
-    cv::Mat _bin = imgBinBD->clone();
-    cv::Mat bin;
-    cv::resize(_bin, bin, cv::Size(), 0.5, 0.5);
+//    cv::Mat _bin = imgBinBD->clone();
+//    cv::Mat bin;
+//    cv::resize(_bin, bin, cv::Size(), 0.5, 0.5);
 
-    cv::imshow("Spoit", rgb);
-    cv::imshow("Binaly", bin);
-    cv::waitKey(1);
+//    cv::imshow("Spoit", rgb);
+//    cv::imshow("Binaly", bin);
+//    cv::waitKey(1);
 
     return 0;
 }
@@ -493,8 +518,9 @@ void Vision::DrawPointSet(cv::Mat& imgInoutput, std::vector<cv::Point> vecPoint,
 void Vision::saveimage(QString savepath){
     TRACE("call save image slot");
     TRACE(savepath);
-    QString file_path(savepath + "/image_" + disT +"_"+ disM +"_"+ disB +".jpg");
-    TRACE(file_path);
+    //    QString file_path(savepath + "/image_" + disT +"_"+ disM +"_"+ disB +".jpg");
+    QString file_path(savepath + "/image.jpg")
+        TRACE(file_path);
     cv::Mat tmp = imgResult->clone();
     cv::cvtColor(tmp,tmp,cv::COLOR_BGR2RGB);
     cv::imwrite(file_path.toStdString(), tmp);
@@ -502,7 +528,8 @@ void Vision::saveimage(QString savepath){
 
 void Vision::saveimage_result(){
     //    QString file_path(savepath + "/image_" + disT +"_"+ disM +"_"+ disB +".jpg");
-    cv::imwrite((savepath_R + "/image_result" + disT +"_"+ disM +"_"+ disB +".jpg").toStdString(), *imgResult);
+    //    cv::imwrite((savepath_R + "/image_result" + disT +"_"+ disM +"_"+ disB +".jpg").toStdString(), *imgResult);
+    cv::imwrite((savepath_R + "/image_result.jpg").toStdString(), *imgResult);
     cv::Mat tmp = imgResult->clone();
     cv::cvtColor(tmp,tmp,cv::COLOR_BGR2RGB);
     //    cv::imwrite(file_path.toStdString(), tmp);
