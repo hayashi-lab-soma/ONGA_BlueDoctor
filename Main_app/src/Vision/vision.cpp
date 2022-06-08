@@ -39,6 +39,10 @@ Vision::Vision(QObject *parent) : QObject(parent)
     max_area_cmp_Green.centroid = QPoint(0,0);
     max_area_cmp_Green.size = QSize(0,0);
     max_area_cmp_Green.tl = QPoint(0,0);
+
+//    rectBD = cv::RotatedRect(cv::Point(-1,-1),cv::Size(-1,-1));
+    rectGreen = new cv::RotatedRect();
+    rectBD = new cv::RotatedRect();
 }
 
 int Vision::initialize()
@@ -63,7 +67,6 @@ int Vision::initialize()
     imgResult = new cv::Mat();
     imgBinBD = new cv::Mat();
     imgBinGreen = new cv::Mat();
-
 #endif
 
     QThread::msleep(200);
@@ -143,19 +146,19 @@ void Vision::main(Data *data)
               &data->posGreen_m,
               &max_area_cmp_Green,
               &cmpGreen,
-              lostGreen_num);
+              lostGreen_num, data, rectGreen);
     detection(imgBinBD,
               &data->posBD_pix,
               &data->posBD_m,
               &max_area_cmp_BD,
               &cmpBD,
-              lostBD_num);
+              lostBD_num, data, rectBD);
 
 
 //NoWhite:
 
     //Results drawing on RGB image
-    DrawResults(data);
+//    DrawResults(data);
 
     //signals
     emit updatedRGB(imgResult);
@@ -214,7 +217,7 @@ void Vision::detection(cv::Mat *input,
                        QPointF *point_m,
                        Compornent_t *max,
                        Compornent_t *cmp,
-                       int lost_num) {
+                       int lost_num, Data *data, cv::RotatedRect *rect) {
     //labeling process on binary image
     cv::Mat matLabels = cv::Mat();
     cv::Mat stats = cv::Mat();
@@ -230,21 +233,22 @@ void Vision::detection(cv::Mat *input,
     //if number of compornents is one,
     //it means that the component is background of the image.
     //So, you should something to avoid error of the detection process
-    if(numComponents == 1){
-        max->area = -1.0;
-        max->centroid = QPoint(-1, -1);
-        //		cmp.area = -1.0;
-        //		cmp.centroid = QPoint(-1, -1);
+    std::cout << "numcompo" << numComponents << std::endl;
+//    if(numComponents == 1){
+//        max->area = -1.0;
+//        max->centroid = QPoint(-1, -1);
+//        //		cmp.area = -1.0;
+//        //		cmp.centroid = QPoint(-1, -1);
 
-        lost_num++;
+//        lost_num++;
 
-        if(lost_num == 15){
-            emit lostError();
-            lost_num = 0;
-        }
-    }else{
-        lost_num = 0;
-    }
+//        if(lost_num == 15){
+//            emit lostError();
+//            lost_num = 0;
+//        }
+//    }else{
+//        lost_num = 0;
+//    }
 
 
     //if number of compornent is two or more,
@@ -254,27 +258,34 @@ void Vision::detection(cv::Mat *input,
     for(int i = 1; i < numComponents; i++){
         int *stat = stats.ptr<int>(i); //get stat of the (i)th compornent
         int A = stat[cv::ConnectedComponentsTypes::CC_STAT_AREA]; //get area [pixel]
+//        max_area = A;
+//        idx_max_area = i;
 
-        if(A > max_area){
-            max_area = A;
-            idx_max_area = i;
-        }
+//        if(A > max_area){
+//            max_area = A;
+//            idx_max_area = i;
+//        }
+
+        TRACE(QString("Max area compornent : %1 (%2)").arg(idx_max_area).arg(max_area));
+
+//        stat = stats.ptr<int>(idx_max_area);
+//        A = stat[cv::ConnectedComponentsTypes::CC_STAT_AREA];
+        max->area = A;
+        int t = stat[cv::ConnectedComponentsTypes::CC_STAT_LEFT]; //top coordinate
+        int l = stat[cv::ConnectedComponentsTypes::CC_STAT_TOP];  //left coordinate
+        max->tl = QPoint(t, l);
+        int w = stat[cv::ConnectedComponentsTypes::CC_STAT_WIDTH];
+        int h = stat[cv::ConnectedComponentsTypes::CC_STAT_HEIGHT];
+        max->size = QSize(w, h);
+        int cx = (int)((centroids.ptr<double>(idx_max_area))[0]);
+        int cy = (int)((centroids.ptr<double>(idx_max_area))[1]);
+        max->centroid = QPoint(cx, cy);
+
+        cv::RotatedRect rect(cv::Point(max->centroid.x(),max->centroid.y()),
+              cv::Size(max->size.width(),max->size.height()), 0);
+        DrawResults(data);
+        idx_max_area = i;
     }
-    TRACE(QString("Max area compornent : %1 (%2)").arg(idx_max_area).arg(max_area));
-
-    int *stat = stats.ptr<int>(idx_max_area);
-    int A = stat[cv::ConnectedComponentsTypes::CC_STAT_AREA];
-    max->area = A;
-    int t = stat[cv::ConnectedComponentsTypes::CC_STAT_LEFT]; //top coordinate
-    int l = stat[cv::ConnectedComponentsTypes::CC_STAT_TOP];  //left coordinate
-    max->tl = QPoint(t, l);
-    int w = stat[cv::ConnectedComponentsTypes::CC_STAT_WIDTH];
-    int h = stat[cv::ConnectedComponentsTypes::CC_STAT_HEIGHT];
-    max->size = QSize(w, h);
-    int cx = (int)((centroids.ptr<double>(idx_max_area))[0]);
-    int cy = (int)((centroids.ptr<double>(idx_max_area))[1]);
-    max->centroid = QPoint(cx, cy);
-
 
     //return Blue Doctor or Green position (x[m], y[m])
 //    if(max->area >= cmp->area){
@@ -355,13 +366,13 @@ void Vision::DrawResults(Data *data)
                           cv::Scalar(255, 0, 0),
                           5);
         }
-        cv::RotatedRect rectBD(cv::Point(max_area_cmp_BD.centroid.x(),max_area_cmp_BD.centroid.y()),
-                               cv::Size(max_area_cmp_BD.size.width(),max_area_cmp_BD.size.height()), 0);
-        cv::RotatedRect rectlight(cv::Point(max_area_cmp_Green.centroid.x(),max_area_cmp_Green.centroid.y()),
-                                  cv::Size(max_area_cmp_Green.size.width(),max_area_cmp_Green.size.height()),0);
+//        cv::RotatedRect rectBD(cv::Point(max_area_cmp_BD.centroid.x(),max_area_cmp_BD.centroid.y()),
+//                               cv::Size(max_area_cmp_BD.size.width(),max_area_cmp_BD.size.height()), 0);
+//        cv::RotatedRect rectlight(cv::Point(max_area_cmp_Green.centroid.x(),max_area_cmp_Green.centroid.y()),
+//                                  cv::Size(max_area_cmp_Green.size.width(),max_area_cmp_Green.size.height()),0);
 
         std::vector<cv::Point2f> vertices;
-        int status = cv::rotatedRectangleIntersection(rectBD,rectlight,vertices);
+        int status = cv::rotatedRectangleIntersection(*rectBD,*rectGreen,vertices);
         std::cout << "status" << status << std::endl;
         if(status>0&&max_area_cmp_BD.centroid != QPoint(0, 0)){
             std::cout << "x,y=" << max_area_cmp_BD.centroid.x() << "," << max_area_cmp_BD.centroid.y() << std::endl;

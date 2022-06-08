@@ -36,7 +36,7 @@ public:
 private:
     void hsvFilter(cv::Mat *output, HSV_Ranges_t range);
     void detection(cv::Mat *input, QPoint *point, QPointF *point_m, Compornent_t *max,
-                   Compornent_t *cmp, int lost_num);
+                   Compornent_t *cmp, int lost_num, Data *data, cv::RotatedRect *rect);
     int DetectionBlueDoctor(cv::Mat *img, HSV_Ranges_t hsvRngs, double wall_depth,
                             QPointF &pos_m, QPoint &pos_pix);
     int Spoit(Data *data);
@@ -81,6 +81,8 @@ private:
     cv::Mat *imgBinBD;
     cv::Mat *imgResult;
     cv::Mat *imgpic;
+    cv::RotatedRect *rectGreen;
+    cv::RotatedRect *rectBD;
 
     bool isWndSpoit;
 
