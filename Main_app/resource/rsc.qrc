@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/IMAGE">
+        <file>LED.jpg</file>
+        <file>Mandrill.bmp</file>
+    </qresource>
+    <qresource prefix="/SOUND">
+        <file>Ring01.wav</file>
+    </qresource>
+</RCC>
