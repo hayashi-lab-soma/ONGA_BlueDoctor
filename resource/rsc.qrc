@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/IMAGE">
+        <file>LED.jpg</file>
+        <file>Mandrill.bmp</file>
+        <file>open_csv.png</file>
+        <file>green_target.png</file>
+        <file>grids.png</file>
+        <file>spoit.png</file>
+        <file>spoitblue.png</file>
+        <file>spoitgreen.png</file>
+    </qresource>
+    <qresource prefix="/SOUND">
+        <file>Ring01.wav</file>
+    </qresource>
+</RCC>
