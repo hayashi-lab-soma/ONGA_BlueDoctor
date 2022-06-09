@@ -55,12 +55,12 @@ void MainWindow::setup()
     //Create GUI instalce
     imgVwrRGB = new ImageViewer("RGB", this);
     imgVwrBin = new ImageViewer("Green HSV", this);
-    imgVwrBD = new ImageViewer("BlueDoctor HSV", this);
+//    imgVwrBD = new ImageViewer("BlueDoctor HSV", this);
     plnVwr = new PlaneViewer(this);
 
     spoit = new Spoit_ImageViewer("Spoit", this);
     hsvRngCont = new HSVRangeController(this);
-    bdRngCont = new HSVRangeController(this);
+//    bdRngCont = new HSVRangeController(this);
     camParamCont = new CameraParameterContoller(this);
 
     mainCont = new MainController(this);
@@ -74,7 +74,7 @@ void MainWindow::setup()
 
     imgVwrRGB->initialize(CV_8UC3, QImage::Format_RGB888);
     imgVwrBin->initialize(CV_8UC1, QImage::Format_Grayscale8);
-    imgVwrBD->initialize(CV_8UC1, QImage::Format_Grayscale8);
+//    imgVwrBD->initialize(CV_8UC1, QImage::Format_Grayscale8);
     plnVwr->initialize();
 
     int hsvRngType = 0;
@@ -82,10 +82,10 @@ void MainWindow::setup()
     hsvRngCont->setWindowFlags(Qt::Window);
     hsvRngCont->close();
 
-    int bdRngType = 1;
-    bdRngCont->initialize(data, bdRngType);
-    bdRngCont->setWindowFlags(Qt::Window);
-    bdRngCont->close();
+//    int bdRngType = 1;
+//    bdRngCont->initialize(data, bdRngType);
+//    bdRngCont->setWindowFlags(Qt::Window);
+//    bdRngCont->close();
 
     camParamCont->initialize(data);
     camParamCont->setWindowFlags(Qt::Window);
@@ -97,14 +97,14 @@ void MainWindow::setup()
     //Add MDI area as sub windows
     swImgVwrRGB = addMdiSubWindow(imgVwrRGB);
     swImgVwrBin = addMdiSubWindow(imgVwrBin);
-    swImgVwrBD = addMdiSubWindow(imgVwrBD);
+//    swImgVwrBD = addMdiSubWindow(imgVwrBD);
     swPlnVwr = addMdiSubWindow(plnVwr);
     swMainCont = addMdiSubWindow(mainCont);
 
     //signal-slot Vision to GUI classes
     connect(vision, SIGNAL(updatedRGB(cv::Mat*)), imgVwrRGB, SLOT(setImage(cv::Mat*)));
     connect(vision, SIGNAL(updatedImgGreen(cv::Mat*)), imgVwrBin, SLOT(setImage(cv::Mat*)));
-    connect(vision, SIGNAL(updatedImgBD(cv::Mat*)), imgVwrBD, SLOT(setImage(cv::Mat*)));
+//    connect(vision, SIGNAL(updatedImgBD(cv::Mat*)), imgVwrBD, SLOT(setImage(cv::Mat*)));
 
     connect(vision, SIGNAL(sendImg(cv::Mat)), plnVwr , SLOT(setBack(cv::Mat)));
     connect(this,SIGNAL(revision()),vision,SLOT(getImg()));
@@ -113,10 +113,10 @@ void MainWindow::setup()
     /***
      * Action trigger slots
      ***/
-    connect(ui->actBDHSV, &QAction::triggered, this,
-            [=](){
-        bdRngCont->show();
-    });
+//    connect(ui->actBDHSV, &QAction::triggered, this,
+//            [=](){
+//        bdRngCont->show();
+//    });
     connect(ui->actGreenHSV, &QAction::triggered, this,
             [=](){
         hsvRngCont->show();
@@ -127,7 +127,7 @@ void MainWindow::setup()
     });
     connect(ui->actShowGreenTarget, &QAction::triggered, this,
             [=](bool checked){
-        data->isShowBDRect = checked;
+        data->isShowBDRect = !checked;
     });
     connect(ui->actShowGrids, &QAction::triggered, this,
             [=](bool checked){
@@ -249,21 +249,21 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     //Adjust size and position
     swImgVwrRGB->resize(ui->mdi->width()*0.4, ui->mdi->height()*0.65);
     swImgVwrRGB->move(0,0);
-//    swImgVwrBin->resize(ui->mdi->width()*0.25, ui->mdi->height()*0.35);
-    swImgVwrBin->resize(ui->mdi->width()*0.18, ui->mdi->height()*0.35);
+    swImgVwrBin->resize(ui->mdi->width()*0.25, ui->mdi->height()*0.35);
+//    swImgVwrBin->resize(ui->mdi->width()*0.18, ui->mdi->height()*0.35);
     swImgVwrBin->move(0, swImgVwrRGB->height());
 //    swImgVwrBD->resize(ui->mdi->width()*0.25, ui->mdi->height()*0.35);
-    swImgVwrBD->resize(ui->mdi->width()*0.18, ui->mdi->height()*0.35);
+//    swImgVwrBD->resize(ui->mdi->width()*0.18, ui->mdi->height()*0.35);
 //    swImgVwrBD->move(0,swImgVwrRGB->height());
-    swImgVwrBD->move(ui->mdi->width()*0.18,swImgVwrRGB->height());
+//    swImgVwrBD->move(ui->mdi->width()*0.18,swImgVwrRGB->height());
 
     swPlnVwr->resize(ui->mdi->width()*0.6, ui->mdi->height()*0.65);
     swPlnVwr->move(swImgVwrRGB->width(), 0);
 
-//    swMainCont->resize(ui->mdi->width()*0.75, ui->mdi->height()*0.35);
-//    swMainCont->move(ui->mdi->width()*0.25, ui->mdi->height()*0.65);
-    swMainCont->resize(ui->mdi->width()*0.64, ui->mdi->height()*0.35);
-    swMainCont->move(ui->mdi->width()*0.36, ui->mdi->height()*0.65);
+    swMainCont->resize(ui->mdi->width()*0.75, ui->mdi->height()*0.35);
+    swMainCont->move(ui->mdi->width()*0.25, ui->mdi->height()*0.65);
+//    swMainCont->resize(ui->mdi->width()*0.64, ui->mdi->height()*0.35);
+//    swMainCont->move(ui->mdi->width()*0.36, ui->mdi->height()*0.65);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -330,24 +330,24 @@ void MainWindow::start()
     qInfo() << "--- Start Main Process ---";
 }
 
-void MainWindow::on_actSpoitBlue_triggered()
-{
-    data->isSpoit = true;
-    //color_tag = 0(Blue)
-    spoit->color_tag = 0;
+//void MainWindow::on_actSpoitBlue_triggered()
+//{
+//    data->isSpoit = true;
+//    //color_tag = 0(Blue)
+//    spoit->color_tag = 0;
 
-    QDesktopWidget dw;
-    QRect mainScreen = dw.availableGeometry(dw.primaryScreen());
-    //        spoit->resize(mainScreen.width()*0.5,mainScreen.height());
-    //        spoit->move(mainScreen.width()*0.5,0);
-    spoit->resize(mainScreen.width()*0.6,mainScreen.height()*0.6);
-    spoit->move(mainScreen.width()*0.4,mainScreen.height()*0.25);
-    spoit->setImage((vision->imgResult));
-    spoit->show();
+//    QDesktopWidget dw;
+//    QRect mainScreen = dw.availableGeometry(dw.primaryScreen());
+//    //        spoit->resize(mainScreen.width()*0.5,mainScreen.height());
+//    //        spoit->move(mainScreen.width()*0.5,0);
+//    spoit->resize(mainScreen.width()*0.6,mainScreen.height()*0.6);
+//    spoit->move(mainScreen.width()*0.4,mainScreen.height()*0.25);
+//    spoit->setImage((vision->imgResult));
+//    spoit->show();
 
-    connect(spoit,SIGNAL(fuzzySelectedBlue(cv::Range,cv::Range,cv::Range)),this, SLOT(SetHSVRanges(cv::Range,cv::Range,cv::Range)));
-    disconnect();
-}
+//    connect(spoit,SIGNAL(fuzzySelectedBlue(cv::Range,cv::Range,cv::Range)),this, SLOT(SetHSVRanges(cv::Range,cv::Range,cv::Range)));
+//    disconnect();
+//}
 
 void MainWindow::on_actSpoitGreen_triggered()
 {
