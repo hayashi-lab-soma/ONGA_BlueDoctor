@@ -78,6 +78,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../resource/green_target.png</normaloff>../resource/green_target.png</iconset>
@@ -175,6 +178,9 @@
    </property>
   </action>
   <action name="actSpoitBlue">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../resource/rsc.qrc">
      <normaloff>:/IMAGE/spoitblue.png</normaloff>:/IMAGE/spoitblue.png</iconset>
@@ -184,6 +190,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+B</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
  </widget>
