@@ -54,7 +54,8 @@ void MainWindow::setup()
 {
     //Create GUI instalce
     imgVwrRGB = new ImageViewer("RGB", this);
-    imgVwrBin = new ImageViewer("Green HSV", this);
+//    imgVwrBin = new ImageViewer("Green HSV", this);
+    imgVwrBin = new ImageViewer("Red HSV", this);
 //    imgVwrBD = new ImageViewer("BlueDoctor HSV", this);
     plnVwr = new PlaneViewer(this);
 

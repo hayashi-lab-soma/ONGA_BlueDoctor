@@ -8,6 +8,7 @@
         <file>spoit.png</file>
         <file>spoitblue.png</file>
         <file>spoitgreen.png</file>
+        <file>spoitred.png</file>
     </qresource>
     <qresource prefix="/SOUND">
         <file>Ring01.wav</file>

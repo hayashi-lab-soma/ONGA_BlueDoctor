@@ -109,7 +109,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Green HSV</string>
+    <string>Red HSV</string>
    </property>
   </action>
   <action name="actCamParam">
@@ -120,10 +120,10 @@
   <action name="actSpoitGreen">
    <property name="icon">
     <iconset resource="../resource/rsc.qrc">
-     <normaloff>:/IMAGE/spoitgreen.png</normaloff>:/IMAGE/spoitgreen.png</iconset>
+     <normaloff>:/IMAGE/spoitred.png</normaloff>:/IMAGE/spoitred.png</iconset>
    </property>
    <property name="text">
-    <string>SpoitGreen</string>
+    <string>SpoitRed</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>
