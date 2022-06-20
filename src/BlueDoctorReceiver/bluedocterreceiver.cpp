@@ -458,6 +458,10 @@ void BlueDocterReceiver::ReadHammeringCommand(QByteArray pack)
             }
         }
       }
+      for (int i=0; i<5; i++){
+          SData_x[i] = 0.0;
+          SData_y[i] = 0.0;
+      }
     }
 
 
