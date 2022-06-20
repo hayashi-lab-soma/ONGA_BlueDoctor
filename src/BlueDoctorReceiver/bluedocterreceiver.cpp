@@ -455,6 +455,10 @@ void BlueDocterReceiver::ReadHammeringCommand(QByteArray pack)
                     (*ostrError) << "   Message : BDspeedError" << endl;//エラー��?��の書き込み
                     logCount = 1;
                 }
+            } else {
+                alarm->stopAlarm("Stopped SpeedErrorAlarm");
+                ui->SpeedErrorBtn->setEnabled(false);
+                ui->SpeedErrorBtn->setStyleSheet("background-color: gray; font-size: 2em; font-weight: bold;");
             }
         }
       }
