@@ -62,7 +62,7 @@ int Vision::initialize()
 #elif SELECT_DEVICE == 1
 	if(d455->init() == -1) return -1;
 	imgResult = new cv::Mat();
-	imgBinBD = new cv::Mat();
+//	imgBinBD = new cv::Mat();
 	imgBinGreen = new cv::Mat();
 
 #endif
@@ -139,13 +139,13 @@ void Vision::main(Data *data)
 
     //binarization
 	hsvFilter(imgBinGreen, data->hsvRngsGreen);
-    hsvFilter(imgBinBD, data->hsvRngsBD);
+//    hsvFilter(imgBinBD, data->hsvRngsBD);
 
     //eroding(delating)--------------
 	cv::Mat imgBinG = *imgBinGreen;
 	cv::dilate(imgBinG, *imgBinGreen, cv::noArray(), cv::Point(-1,-1),5);
-	cv::Mat imgBinB = *imgBinBD;
-	cv::dilate(imgBinB, *imgBinBD, cv::noArray(), cv::Point(-1,-1),5);
+//	cv::Mat imgBinB = *imgBinBD;
+//	cv::dilate(imgBinB, *imgBinBD, cv::noArray(), cv::Point(-1,-1),5);
 	//-------------------------------
 
     detection(imgBinGreen, //detect Green light
@@ -188,7 +188,7 @@ void Vision::main(Data *data)
 
     //Bin_BD fps to be half
     if(fpsDown) {
-        emit updatedImgBD(imgBinBD);//show Bin Blue
+//        emit updatedImgBD(imgBinBD);//show Bin Blue
         emit updatedImgGreen(imgBinGreen);//show Bin Green light
     }
     fpsDown = !fpsDown;
