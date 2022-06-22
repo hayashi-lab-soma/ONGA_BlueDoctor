@@ -191,51 +191,11 @@ void Spoit_ImageViewer::FuzzySelect(cv::Point sp)
 //        //    msgbx.setText("Wait for processing ...");
 //        msgbx->open();
 
-    //Blue or Green?
-    switch(color_tag) {
-    case 0  :
-        //set HSV range
-        //blue range
-        //10,30,50 ->10,50,50 ->12,65,65
-        if(t_hsv[0] >= 40 && t_hsv[0] <= 140){//赤に近い色は排除
-            h.start = t_hsv[0]-12;h.end = t_hsv[0]+12;
-            s.start = t_hsv[1]-65;s.end = t_hsv[1]+65;
-            v.start = t_hsv[2]-65;v.end = t_hsv[2]+65;
-            emit fuzzySelectedBlue(h, s, v);
-        }else{
+    h.start = t_hsv[0]-12;h.end = t_hsv[0]+12;
+    s.start = t_hsv[1]-65;s.end = t_hsv[1]+65;
+    v.start = t_hsv[2]-65;v.end = t_hsv[2]+65;
+    emit fuzzySelectedGreen(h, s, v);
 
-                QMessageBox *msgbx = new QMessageBox(
-                            QMessageBox::NoIcon,
-                            QString("caution"),
-                            QString("青か緑を選んでください"),
-                            QMessageBox::NoButton);
-//                msgbx->setStandardButtons(0);
-                //    QMessageBox msgbx;
-                //    msgbx.setText("Wait for processing ...");
-                msgbx->open();
-        }
-        break;
-    case 1  :
-        //green range
-        //10,75,50 ->12,90,65
-        if(t_hsv[0] >= 40 && t_hsv[0] <= 140){
-            h.start = t_hsv[0]-12;h.end = t_hsv[0]+12;
-            s.start = t_hsv[1]-90;s.end = t_hsv[1]+90;
-            v.start = t_hsv[2]-65;v.end = t_hsv[2]+65;
-            emit fuzzySelectedGreen(h, s, v);
-        }else{
-            QMessageBox *msgbx = new QMessageBox(
-                        QMessageBox::NoIcon,
-                        QString("caution"),
-                        QString("青か緑を選んでください"),
-                        QMessageBox::NoButton);
-//                msgbx->setStandardButtons(0);
-            //    QMessageBox msgbx;
-            //    msgbx.setText("Wait for processing ...");
-            msgbx->open();
-        }
-        break;
-    }
 
     qDebug() << "h:" << t_hsv(0);
     qDebug() << "h.start:" << h.start;

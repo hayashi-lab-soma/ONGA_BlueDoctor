@@ -55,13 +55,13 @@ void HSVRangeController::initialize(Data *data, int type)
         data->hsvRngsGreen.V = cv::Range(cfg->getInteger("VISION", "V_MIN_GREEN"), cfg->getInteger("VISION", "V_MAX_GREEN"));
     }
 
-    if(this->type==1){
-        S->setValues(cfg->getInteger("VISION", "S_MIN_BLUE"), cfg->getInteger("VISION", "S_MAX_BLUE"));
-        V->setValues(cfg->getInteger("VISION", "V_MIN_BLUE"), cfg->getInteger("VISION", "V_MAX_BLUE"));
-        data->hsvRngsBD.H = cv::Range(cfg->getInteger("VISION", "H_MIN_BLUE"), cfg->getInteger("VISION", "H_MAX_BLUE"));
-        data->hsvRngsBD.S = cv::Range(cfg->getInteger("VISION", "S_MIN_BLUE"), cfg->getInteger("VISION", "S_MAX_BLUE"));
-        data->hsvRngsBD.V = cv::Range(cfg->getInteger("VISION", "V_MIN_BLUE"), cfg->getInteger("VISION", "V_MAX_BLUE"));
-    }
+//    if(this->type==1){
+//        S->setValues(cfg->getInteger("VISION", "S_MIN_BLUE"), cfg->getInteger("VISION", "S_MAX_BLUE"));
+//        V->setValues(cfg->getInteger("VISION", "V_MIN_BLUE"), cfg->getInteger("VISION", "V_MAX_BLUE"));
+//        data->hsvRngsBD.H = cv::Range(cfg->getInteger("VISION", "H_MIN_BLUE"), cfg->getInteger("VISION", "H_MAX_BLUE"));
+//        data->hsvRngsBD.S = cv::Range(cfg->getInteger("VISION", "S_MIN_BLUE"), cfg->getInteger("VISION", "S_MAX_BLUE"));
+//        data->hsvRngsBD.V = cv::Range(cfg->getInteger("VISION", "V_MIN_BLUE"), cfg->getInteger("VISION", "V_MAX_BLUE"));
+//    }
 }
 
 void HSVRangeController::changedHRange(int min, int max)
@@ -70,10 +70,10 @@ void HSVRangeController::changedHRange(int min, int max)
         data->hsvRngsGreen.H.start = min;
         data->hsvRngsGreen.H.end = max;
     }
-    if(this->type==1){
-        data->hsvRngsBD.H.start = min;
-        data->hsvRngsBD.H.end = max;
-    }
+//    if(this->type==1){
+//        data->hsvRngsBD.H.start = min;
+//        data->hsvRngsBD.H.end = max;
+//    }
 }
 
 void HSVRangeController::changedSRange(int min, int max)
@@ -82,10 +82,10 @@ void HSVRangeController::changedSRange(int min, int max)
         data->hsvRngsGreen.S.start = min;
         data->hsvRngsGreen.S.end = max;
     }
-    if(this->type==1){
-        data->hsvRngsBD.S.start = min;
-        data->hsvRngsBD.S.end = max;
-    }
+//    if(this->type==1){
+//        data->hsvRngsBD.S.start = min;
+//        data->hsvRngsBD.S.end = max;
+//    }
 }
 
 void HSVRangeController::changedVRange(int min, int max)
@@ -94,8 +94,8 @@ void HSVRangeController::changedVRange(int min, int max)
         data->hsvRngsGreen.V.start = min;
         data->hsvRngsGreen.V.end = max;
     }
-    if(this->type==1){
-        data->hsvRngsBD.V.start = min;
-        data->hsvRngsBD.V.end = max;
-    }
+//    if(this->type==1){
+//        data->hsvRngsBD.V.start = min;
+//        data->hsvRngsBD.V.end = max;
+//    }
 }

@@ -57,7 +57,7 @@ private slots:
     void on_actAlarm_ON_triggered();
 
 //    void on_actOpenDepthCSV_triggered();
-    void on_actSpoitBlue_triggered();
+//    void on_actSpoitBlue_triggered();
     void on_actSpoitGreen_triggered();
     void SetHSVRanges(cv::Range h, cv::Range s, cv::Range v);
     void openPopup();

@@ -139,7 +139,7 @@ void Vision::main(Data *data)
 
     //binarization
 	hsvFilter(imgBinGreen, data->hsvRngsGreen);
-	hsvFilter(imgBinBD, data->hsvRngsBD);
+    hsvFilter(imgBinBD, data->hsvRngsBD);
 
     //eroding(delating)--------------
 	cv::Mat imgBinG = *imgBinGreen;
@@ -155,7 +155,7 @@ void Vision::main(Data *data)
               &cmpGreen,
               lostGreen_num);
 
-    detection2(imgBinBD,&max_area_cmp_Green); //detect BD blue around Green
+//    detection2(imgBinBD,&max_area_cmp_Green); //detect BD blue around Green
 
 	//Results drawing on RGB image
 	DrawResults(data);
@@ -403,7 +403,7 @@ void Vision::DrawResults(Data *data)
 
     //--------------------------------------------------
     //Draw green compornent's rectangle
-    if(!data->isShowBDRect){
+    if(!data->isShowBDRect && white != 0){
 
         if(max_area_cmp_Green.centroid != QPoint(-1, -1)){	//if found Green
             cv::rectangle(*imgResult,//rectangle Green light
@@ -413,53 +413,53 @@ void Vision::DrawResults(Data *data)
                                    max_area_cmp_Green.size.height()),
                           cv::Scalar(0, 255, 0),
                           2);
-        }
+//        }
 
-        if(white != 0){// avoid no component error
-            if(detect_inside == true){// when blue (around green) can detect
-                //put point at centroid
-                cv::rectangle(*imgResult,//rectangle around light
-                              cv::Rect(new_x,
-                                       new_y,
-                                       new_width,
-                                       new_height),
-                              cv::Scalar(0, 0, 255),
-                              2);
-                cv::circle(*imgResult, cv::Point(max_area_cmp_Green.centroid.x(),max_area_cmp_Green.centroid.y()), 4, cv::Scalar(255,0,0), 2, 4);
+//        if(white != 0){// avoid no component error
+//            if(detect_inside == true){// when blue (around green) can detect
+//                //put point at centroid
+//                cv::rectangle(*imgResult,//rectangle around light
+//                              cv::Rect(new_x,
+//                                       new_y,
+//                                       new_width,
+//                                       new_height),
+//                              cv::Scalar(0, 0, 255),
+//                              2);
+            cv::circle(*imgResult, cv::Point(max_area_cmp_Green.centroid.x(),max_area_cmp_Green.centroid.y()), 4, cv::Scalar(255,0,0), 2, 4);
 
-                //return Blue Doctor position (x[m], y[m])
-                data->posBD_pix.setX(max_area_cmp_Green.centroid.x()); //[pixel]
-                data->posBD_pix.setY(max_area_cmp_Green.centroid.y()); //[pixel]
-                //convert to meter
-                int u = max_area_cmp_Green.centroid.x();
-                int v = max_area_cmp_Green.centroid.y();
-                float point[3] = {0.0};
+            //return Blue Doctor position (x[m], y[m])
+            data->posBD_pix.setX(max_area_cmp_Green.centroid.x()); //[pixel]
+            data->posBD_pix.setY(max_area_cmp_Green.centroid.y()); //[pixel]
+            //convert to meter
+            int u = max_area_cmp_Green.centroid.x();
+            int v = max_area_cmp_Green.centroid.y();
+            float point[3] = {0.0};
 
-                //uv = (u,v):BD position [pixel]
-                //_uv = (u/W, v/H):BD position ration (0.0 ~ 1.0)
-                float width = rs2_frames.imgAlignedRGB.cols;
-                float height = rs2_frames.imgAlignedRGB.rows;
-                QPointF _uv = QPointF((float)u/width, (float)v/height);
-                //_hw = (u/W*N, v/H*N):BD grid position (0 ~ N)
-                QPointF _hw = QPointF(_uv.x()*(float)data->divN, _uv.y()*(float)data->divN);
-                //depth grid index
-                int idx = (int)(_hw.x()) + (int)(_hw.y())*data->divN;
+            //uv = (u,v):BD position [pixel]
+            //_uv = (u/W, v/H):BD position ration (0.0 ~ 1.0)
+            float width = rs2_frames.imgAlignedRGB.cols;
+            float height = rs2_frames.imgAlignedRGB.rows;
+            QPointF _uv = QPointF((float)u/width, (float)v/height);
+            //_hw = (u/W*N, v/H*N):BD grid position (0 ~ N)
+            QPointF _hw = QPointF(_uv.x()*(float)data->divN, _uv.y()*(float)data->divN);
+            //depth grid index
+            int idx = (int)(_hw.x()) + (int)(_hw.y())*data->divN;
 
-                double depth = data->dis[idx]; //depth value from calibration data
+            double depth = data->dis[idx]; //depth value from calibration data
 
-                d455->deproject2(u,v,depth,point);//convert [pixel] to [m]
+            d455->deproject2(u,v,depth,point);//convert [pixel] to [m]
 
-                //finally input meter
-                data->posBD_m.setX(point[0]); //meter
-                data->posBD_m.setY(point[1]*-1);
-                data->wall_depth = depth;//csv z
-                cmpBD = max_area_cmp;
-            }else{//only detect Green light
-                data->posBD_m.setX(BD_STATE_COLOR::VISION_DETECTION_ERROR); //meter
-                data->posBD_m.setY(BD_STATE_COLOR::VISION_DETECTION_ERROR);
-                data->posBD_pix.setX(10000); //[pixel]
-                data->posBD_pix.setY(10000); //[pixel]
-            }
+            //finally input meter
+            data->posBD_m.setX(point[0]); //meter
+            data->posBD_m.setY(point[1]*-1);
+            data->wall_depth = depth;//csv z
+            cmpBD = max_area_cmp;
+//            }else{//only detect Green light
+//                data->posBD_m.setX(BD_STATE_COLOR::VISION_DETECTION_ERROR); //meter
+//                data->posBD_m.setY(BD_STATE_COLOR::VISION_DETECTION_ERROR);
+//                data->posBD_pix.setX(10000); //[pixel]
+//                data->posBD_pix.setY(10000); //[pixel]
+//            }
 
         }else{ //no component (white = 0)
             data->posBD_m.setX(BD_STATE_COLOR::VISION_DETECTION_ERROR); //meter
